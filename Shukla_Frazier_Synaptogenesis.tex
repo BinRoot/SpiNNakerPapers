@@ -101,7 +101,36 @@ Explain it's previous success from Levy's work.
 
 
 \section{Implementation Design}
-\IEEEPARstart{N}{eural} networks consist of biologically inspired relationships between individual nodes. designed a programming framework within SpiNNaker's C-language API to enable synaptic disconnection and formation between two neurons, enabling synaptogenesis while learning occurs. 
+\IEEEPARstart{N}{eural} networks consist of biologically inspired relationships between individual nodes (neurons). Learning in such a network occurs by intelligently adjusting weights on the links between the nodes. We define the relationship between nodes into the following three categories:
+
+\begin{itemize}
+\item[(a)] {\bf Static} - The network topology is fixed, and can only change by manually adjusting the relatiionship between nodes. Most neural networks fall into this category because regardless of the number of nodes \(n\), there is only one fixed relationship between them:
+
+\[
+\text{NumberOfTopologies}(n) = 1
+\]
+
+
+\item[(b)] {\bf Semi-Dynamic} - There is some freedom for nodes to rewire with other nodes in real time. The complexity grows polynomially. Each node has non-zero probablity to be rewired with a constant \(c\) number of other nodes. Given \(n\) such nodes, the number of possible topologies can be up to
+
+\[
+\text{NumberOfTopologies}(n) = n^c
+\]
+
+
+\item[(c)] {\bf Dynamic} - Each node has non-zero probability to be wired with any other neuron in the entire network. In this case, the complexity grows exponentially. Given \(n\) nodes, the number of possible topologies becomes
+
+\[
+\text{NumberOfTopologies}(n) = n^{n-1}
+\]
+
+
+\end{itemize}
+
+A biological neural network such as the human brain is not static. Connections between neurons are regularily formed and removed over time. Moreover, such a neural network is not fully dynamic either, since locality is a physical constraint. For example, a neuron on the far end of the left hemisphere of a brain may never directly connect with a neuron over on the right hemisphere.
+
+We designed a programming framework on SpiNNaker's API to enable a semi-dynamic network topology. In our implementation, each neuron had the flexibility to rewire with none, all, or some of the fixed number of other neurons. 
+
 
 
 \section{Pitfalls}

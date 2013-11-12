@@ -100,18 +100,18 @@ Explain it's previous success from Levy's work.
 [TODO: Matt] We're combining the two. And it's gonna be super userful.
 
 
-\section{Implementation Design}
+\section{Design}
 \IEEEPARstart{N}{eural} networks consist of biologically inspired relationships between individual nodes (neurons). Learning in such a network occurs by intelligently adjusting weights on the links between the nodes. We define the relationship between nodes into the following three categories:
 
 \begin{itemize}
-\item[(a)] {\bf Static} - The network topology is fixed, and can only change by manually adjusting the relatiionship between nodes. Most neural networks fall into this category because regardless of the number of nodes \(n\), there is only one fixed relationship between them:
+\item[(a)] {\bf Static} - The network topology is fixed, and can only change by manually adjusting the relatiionship between nodes. Most neural networks fall into this category because regardless of the number of nodes \(n\), only one fixed relationship forms between them:
 
 \[
 \text{NumberOfTopologies}(n) = 1
 \]
 
 
-\item[(b)] {\bf Semi-Dynamic} - There is some freedom for nodes to rewire with other nodes in real time. The complexity grows polynomially. Each node has non-zero probablity to be rewired with a constant \(c\) number of other nodes. Given \(n\) such nodes, the number of possible topologies can be up to
+\item[(b)] {\bf Semi-Dynamic} - The network is not static, and there is some freedom for nodes to rewire with other nodes in real time. The complexity grows polynomially. Each node has non-zero probablity to be rewired with a constant \(c\) number of other nodes. Given \(n\) such nodes, the number of possible topologies can be up to
 
 \[
 \text{NumberOfTopologies}(n) = n^c
@@ -127,11 +127,28 @@ Explain it's previous success from Levy's work.
 
 \end{itemize}
 
-A biological neural network such as the human brain is not static. Connections between neurons are regularily formed and removed over time. Moreover, such a neural network is not fully dynamic either, since locality is a physical constraint. For example, a neuron on the far end of the left hemisphere of a brain may never directly connect with a neuron over on the right hemisphere.
+A biological neural network such as the human brain is not static. Connections between neurons are regularily formed and removed over time. Moreover, such a neural network is not fully dynamic either, since locality is a physical constraint. For example, a neuron on the far end of the left hemisphere of a brain may never directly connect with a neuron on the right hemisphere.
 
 We designed a programming framework on SpiNNaker's API to enable a semi-dynamic network topology. In our implementation, each neuron had the flexibility to rewire with none, all, or some of the fixed number of other neurons. 
 
+\section{Implementation}
+\IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate effecient semi-dynamic synaptogenesis. We implemented a perceptron with fifteen nodes consisting of nine input layers and six output layers. As diagramed in Figure 1 below, each of the nine neurons broadcasted its excitation to an arbitrarily chosen six output neurons. 
 
+\vspace{0.5cm}
+[Figure 1]
+\vspace{0.5cm}
+
+We used the weight modification rule proposed by Levy to categorize an input set of letters. 
+
+\vspace{0.5cm}
+[Delta W rule]
+\vspace{0.5cm}
+
+Every input node broadcasts a data packet to six output nodes, but not all messages are registed by the output neurons. Each packet received by an output node is looked up in the output node's local list of incoming connections. If the address from the packet is not listed in the incoming connections list, it will be ignored, and no further computation will be done.  
+
+Synaptic connectivity was broken when weights fell below some negative threshold. For some \(\delta > 0\), when an average running weight dropped below \(-\delta\), the link was considered disconnected.
+
+New connections were established between nodes when an average rate of activity dropped below 25\%. In this case, the next data packet received from a muted neuron was unmuted.
 
 \section{Pitfalls}
 \IEEEPARstart{S}{ome} disadvantages are present when considering our apprach for synaptogenesis on the SpiNNaker. [TODO: Matt] Blah blah.

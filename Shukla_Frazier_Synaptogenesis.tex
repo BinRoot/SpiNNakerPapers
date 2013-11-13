@@ -129,7 +129,7 @@ Explain it's previous success from Levy's work.
 
 A biological neural network such as the human brain does not follow the static network topology. Connections between neurons are regularly formed and removed over time. Moreover, such a neural network is not fully dynamic either, since locality is a physical constraint. For example, a neuron on the far end of the left hemisphere of a brain may never directly connect with a neuron on the right hemisphere.
 
-We designed a programming framework on SpiNNaker's API to enable a semi-dynamic network topology. In our implementation, each neuron had the flexibility to rewire with none, all, or some of the fixed number of other neurons. 
+We designed a programming framework on SpiNNaker's API to enable a semi-dynamic network topology. In our implementation, each neuron had the flexibility to rewire with none, all, or some of the fixed number of other neurons.
 
 \section{Implementation}
 \IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate efficient semi-dynamic synaptogenesis. We implemented a perceptron with fifteen nodes consisting of nine input layers and six output layers. As diagrammed in Figure 1 below, each of the nine neurons broadcasted its excitation to an arbitrarily chosen six output neurons. 
@@ -157,8 +157,7 @@ New connections are established between nodes when an average rate of activity d
 
 
 \section{Further Study}
-\IEEEPARstart{T}{his} paper reveals multiple questions that still need to be examined further. 
-
+\IEEEPARstart{T}{his} paper reveals multiple questions that still need to be examined further.
 
 \section{Conclusion}
 The conclusion goes here.

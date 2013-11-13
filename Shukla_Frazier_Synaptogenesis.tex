@@ -53,8 +53,9 @@
 }
 
 
-\author{Nishant Shukla ~
-        Matthew Frazier }
+\author{Matthew Frazier ~
+        Nishant Shukla ~
+        Worthy Martin* }
 
 % The paper headers
 \markboth{Journal of Neuroscience Methods,~Vol.~x, No.~y, January~2014}%
@@ -77,27 +78,48 @@ Neural Networks, Synaptogenesis, SpiNNaker
 
 
 \section{Introduction}
-\IEEEPARstart{T}{he} human brain is fast and low in energy. [TODO: Matt] blah blah blah. One property of the brain is it's plasticity (cite Lashley, or some Psyc studies). Our approach to neural networks is greatly influenced by this biological idea, and we want to enable networks to self-modify. 
-% You must have at least 2 lines in the paragraph above
-With energy efficiency in mind, we enable this functionality on the Spiking Neural Network Architecture (SpiNNaker) provided by the University of Manchester. 
+\IEEEPARstart{T}{he} subfield of AI known as neural network computation has recently received a large and growing amount of attention. Put simply; neural networks (NN) are computational models inspired by biological brains that are capable of machine learning. A NN usually consists of interconnected "neurons" (in quotation marks for they are artificially simulated to varying degrees of biological accuracy -- but that topic is outside the scope of this paper) which compute from their inputs and produce various outputs, depending on the model. This paper focuses on types of spiking neural network (SNN) models, in which the neuronal communication (and therefore, the computation of the system as a whole) is achieved via message spikes, or action potentials, from one neuron that is synapsed onto another. In this introduction, we first describe how a SNN is a good computational representation of the brain. We then describe various spike-time learning methods used on a SNN, followed by an exploration of various types of SNN. We discuss why the neuromimetic hardware we use is a good platform for experimentation with SNN, and then describe our approach to the problem of simulating synaptogenesis on such a device and propose a solution. Our design section explores this solution in detail, and our implementation section describes our results.
+
+\subsection{The Brain and other Spiking Neural Networks}
+The brain is a spiking neural network. That is to say; biological neurons pass information around the brain via action potentials which travel from a neurons' soma (cell body) down the axon and generate synaptic events which are received by the dendrites of any neurons that the one in question has synapsed to. 
+[Include figure illustrating this?]
+The process has been simplified greatly as neurobiology is not the focus of this paper, nor is the biological process yet completely understood. What's important are the overarching properties exhibited by brains. Namely; that brains are fast, power-efficient, and capable of obtaining, representing, and integrating complex multi-dimensional information sets into useful knowledge (and from noisy sensory inputs, at that). Moreover, the property of being able to fairly reliably solve highly complex problems is something we want computers to have. 
+[Include TSP example stating that human could do in a day what a procedural program would take hundreds of thousands of man-years to do?]
+Progress is however being made towards the goal of making machines more like minds; indeed, the bus in a computers' hardware may operate at tens of MHz, while an axon may carry only tens to hundreds of action potentials per second, about five orders of magnitude slower than a machine (Furber 2007). The power efficiency of the brain is still far ahead of even the best neuromimetic hardware but the gap is closing quickly, considering that biological evolution had several hundred million years of a head start. One very important property of the brain that computers have a hard time with, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity. It would be erroneous to say that no degree of plasticity has been implemented in any type of SNN, but given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology.
+
+\subsection{Overview of Spike-time learning methods}
+[TODO: Matt]
+Before discussing different types of artificial spiking neural networks, it is necessary to describe various spike-time learning methods that are relevant to understanding how the different types of spiking neural networks function.
+Spike time dependent plasticity (STDP) - 
+Spike driven synaptic plasticity (SDSP) - 
+Dynamic synaptic adjustments - 
+
+\subsection{Types of Spiking Neural Networks}
+[TODO: Matt]
+There's SNN (default, outdated)
+eSNN (evolves -alters synaptic weights- between a learning and recall phase)
+deSNN (evolves dynamically - there's no differentiation between learning and recall (learns continuously))
 
 \subsection{SpiNNaker}
 [TODO: Matt]
 The SpiNNaker is cool. 
-Here's why. (Energy efficient)
-It's so epic. 
+Here's why. It's:
+ -fast
+ -power efficient
+ -massively parallelized
+ -capable of running (arbitrarily?) complex SNN sims
 And we have one. 
-And we added a cool functionality to it. 
+And we added a cool functionality to it (maybe). 
 
 \subsection{Synaptogensis}
-[TODO: Matt]
-Define Synaptogenesis and explain why it's cool.
+[TODO: Nishant]
+Define Synaptogenesis and explain why it's cool. (And why this model's different from deSNN -- entropy)
 Here's why. 
 Explain it's previous success from Levy's work.
 
 \hfill
 
-[TODO: Matt] We're combining the two. And it's gonna be super useful.
+[TODO: Matt] We're combining the two and extending the deSNN model into an edeSNN model, which will shortly be enslaving the entire human race.
 
 
 \section{Design}

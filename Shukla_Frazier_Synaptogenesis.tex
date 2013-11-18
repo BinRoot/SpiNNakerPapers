@@ -80,6 +80,8 @@ Neural Networks, Synaptogenesis, SpiNNaker
 \section{Introduction}
 \IEEEPARstart{T}{he} subfield of AI known as neural network computation has recently received a large and growing amount of attention. Put simply; neural networks (NN) are computational models inspired by biological brains that are capable of machine learning. A NN usually consists of interconnected "neurons" (in quotation marks for they are artificially simulated to varying degrees of biological accuracy -- but that topic is outside the scope of this paper) which compute from their inputs and produce various outputs, depending on the model. This paper focuses on types of spiking neural network (SNN) models, in which the neuronal communication (and therefore, the computation of the system as a whole) is achieved via message spikes, or action potentials, from one neuron that is synapsed onto another. In this introduction, we first describe how a SNN is a good computational representation of the brain. We then describe various spike-time learning methods used on a SNN, followed by an exploration of various types of SNN. We discuss why the neuromimetic hardware we use is a good platform for experimentation with SNN, and then describe our approach to the problem of simulating synaptogenesis on such a device and propose a solution. Our design section explores this solution in detail, and our implementation section describes our results.
 
+( talk about Von Neuman architecture, and how the Turing machine does not encapsulate the entire class of computations. In fact, Hava Siegelmann proposed her ``Artificial Recurrent Neural Network'' could perform hypercomputation. )
+
 \subsection{The Brain and other Spiking Neural Networks}
 The brain is a spiking neural network. That is to say; biological neurons pass information around the brain via action potentials which travel from a neurons' soma (cell body) down the axon and generate synaptic events which are received by the dendrites of any neurons that the one in question has synapsed to. 
 [Include figure illustrating this?]
@@ -111,8 +113,71 @@ Here's why. It's:
 And we have one. 
 And we added a cool functionality to it (maybe). 
 
-\subsection{Synaptogensis}
-[TODO: Nishant]
+\subsection{Synaptic Plasticity}
+Other than updating synaptic weights to achieve learning, we introduce two additional forms of synaptic plasticity. 
+In our study, we allow new synapses to be formed (synaptogenesis), or existing synapses to be entirely disconnected. The three types of plasticity undergo the following principles (Levy 2004):
+
+\begin{itemize}
+\item[(a)] {\bf Synaptogenesis} - 
+Creation of new synapse depends on whether the postsynaptic neuron is at an optimal activation. If not, the formation of a new synapse is considered as an option to improve the network. Additionally, synaptogenesis only occurs between neighboring neurons. 
+
+Synapses are formed by taking into account both receptivity and avidity (Levy 2004). Avidity is the measure of ablility for each neuron to participate is a new synaptic connection, defined as
+
+\[
+A_i(t)=\frac{a}{(a + \sum_j\sum_kW_{i_kj}(t))}
+\]
+
+\[
+a = \left\{
+\begin{array}{lr}
+  1.0 * 10^{33} & \text{for unlimited avidity}\\
+  1.0 & \text{for moderate avidity}\\
+  1.0 * 10^{-3} & \text{for limiting avidity}
+\end{array}
+\right.
+\]
+
+The receptivity of new synaptic connections is inversly proportional to the running average of the neuron's activation. We use the following equation for receptivity 
+
+\[
+R_j(t) = \frac{r_1}{r_1 + \bar{y}_j(t)^{r_2}}
+\]
+
+\[
+\bar{y}(t) = 0.99 \bar{y}_j(t-1) + 0.01 Y_j(t)
+\]
+
+with some experimental constants \(r_1\) and \(r_2\).
+
+\[
+\text{Prob}(\text{of new synapse } ij ) \propto A_i(t) * R_j(t)
+\]
+
+\item[(b)] {\bf Weight Modification} - 
+Weights are adjusted following an unsupervised Hebbian rule. Specifically, we use the following rule:
+
+\[
+\triangle w(t+1) \propto f(\text{post}_j(t))*g(\text{pre}_j(t), w_{ij}(t))
+\]
+
+\item[(c)] {\bf Synapse Removal} -
+Synaptic removal is a stoachastic process where the probability of removal is non-zero if excitatory synapses fall bellow a specified threshold. Given some constant \(\delta > 0\), following rule is used:
+
+\[
+\text{Prob}(\text{removal } ij) = \left\{
+     \begin{array}{lr}
+       0 & \text{if } w_{ij}(t) + \triangle w_{ij}(t+1) > \delta\\
+       >0 & \text{otherwise}
+     \end{array}
+   \right.
+\]
+
+\end{itemize}
+
+Synaptic connections are slowly modified through additions or removals until optimal output firing levels are obtained. 
+Levy asserts that  ``information theory has gained popularity in recent years as a tool for understanding brain recordings.''
+
+
 Define Synaptogenesis and explain why it's cool. (And why this model's different from deSNN -- entropy)
 Here's why. 
 Explain it's previous success from Levy's work.

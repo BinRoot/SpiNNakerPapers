@@ -68,7 +68,9 @@
 \maketitle
 
 \begin{abstract}
-Artificial Neural Networks is a promising approach to study human brain computation. Recent computer architecture design of a low-power 72-core processor by the University of Manchester (SpiNNaker) has made it easier to study highly parallel networks. We designed an algorithm on the SpiNNaker chip to enable synaptic removal, addition, and randomization on a neural network topology during run-time. Additionally, we explored scalability issues and unintended pitfalls with this approach.
+Artificial Neural Networks is a promising approach to study human brain computation. Recent computer architecture design of a low-power 72-core processor by the University of Manchester (SpiNNaker) has made it easier to study highly parallel networks. 
+We designed an algorithm on the SpiNNaker chip to enable synaptic removal, addition, and randomization on a neural network topology during run-time. 
+Additionally, we explored scalability issues and unintended pitfalls with this approach.
 
 \end{abstract}
 
@@ -78,25 +80,50 @@ Neural Networks, Synaptogenesis, SpiNNaker
 
 
 \section{Introduction}
-\IEEEPARstart{T}{he} subfield of AI known as neural network computation has recently received a large and growing amount of attention. Put simply; neural networks (NN) are computational models inspired by biological brains that are capable of machine learning. A NN usually consists of interconnected "neurons" (in quotation marks for they are artificially simulated to varying degrees of biological accuracy -- but that topic is outside the scope of this paper) which compute from their inputs and produce various outputs, depending on the model. This paper focuses on types of spiking neural network (SNN) models, in which the neuronal communication (and therefore, the computation of the system as a whole) is achieved via message spikes, or action potentials, from one neuron that is synapsed onto another. In this introduction, we first describe how a SNN is a good computational representation of the brain. We then describe various spike-time learning methods used on a SNN, followed by an exploration of various types of SNN. We discuss why the neuromimetic hardware we use is a good platform for experimentation with SNN, and then describe our approach to the problem of simulating synaptogenesis on such a device and propose a solution. Our design section explores this solution in detail, and our implementation section describes our results.
+\IEEEPARstart{T}{he} subfield of AI known as neural network computation has recently received a large and growing amount of attention. 
+Put simply; neural networks (NN) are computational models inspired by biological brains that are capable of machine learning. 
+A NN usually consists of interconnected "neurons" (in quotation marks for they are artificially simulated to varying degrees of biological accuracy -- but that topic is outside the scope of this paper) which compute from their inputs and produce various outputs, depending on the model. 
+This paper focuses on types of spiking neural network (SNN) models, in which the neuronal communication (and therefore, the computation of the system as a whole) is achieved via message spikes, or action potentials, from one neuron that is synapsed onto another. 
+In this introduction, we first describe how a SNN is a good computational representation of the brain. 
+We then describe various different spike-dependent spike-time learning methods used on a SNN, followed by an exploration of various types of SNN. 
+We discuss why the neuromimetic hardware we use is a good platform for experimentation with SNN, and then describe our approach to the problem of simulating synaptogenesis on such a device and propose a solution. 
+Our design section explores this solution in detail, and our implementation section describes our results.
 
 \subsection{The Brain and other Spiking Neural Networks}
-The brain is a spiking neural network. That is to say; biological neurons pass information around the brain via action potentials which travel from a neurons' soma (cell body) down the axon and generate synaptic events which are received by the dendrites of any neurons that the one in question has synapsed to. 
+The brain is a spiking neural network. 
+That is to say; biological neurons pass information around the brain via action potentials which travel from a neurons' soma (cell body) down the axon and generate synaptic events which are received by the dendrites of any neurons that the one in question has synapsed to. 
 [Include figure illustrating this?]
-The process has been simplified greatly as neurobiology is not the focus of this paper, nor is the biological process yet completely understood. What's important are the overarching properties exhibited by brains. Namely; that brains are fast, power-efficient, and capable of obtaining, representing, and integrating complex multi-dimensional information sets into useful knowledge (and from noisy sensory inputs, at that). Moreover, the property of being able to fairly reliably solve highly complex problems is something we want computers to have. 
+The process has been simplified greatly as neurobiology is not the focus of this paper, nor is the biological process yet completely understood. 
+What's important are the overarching properties exhibited by brains. 
+Namely; that brains are fast, power-efficient, and capable of obtaining, representing, and integrating complex multi-dimensional information sets into useful knowledge (and from noisy sensory inputs, at that). 
+Moreover, the property of being able to fairly reliably solve highly complex problems is something we want computers to have. 
 [Include TSP example stating that human could do in a day what a procedural program would take hundreds of thousands of man-years to do?]
-Progress is however being made towards the goal of making machines more like minds; indeed, the bus in a computers' hardware may operate at tens of MHz, while an axon may carry only tens to hundreds of action potentials per second, about five orders of magnitude slower than a machine (Furber 2007). The power efficiency of the brain is still far ahead of even the best neuromimetic hardware but the gap is closing quickly, considering that biological evolution had several hundred million years of a head start. One very important property of the brain that computers have a hard time with, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity. It would be erroneous to say that no degree of plasticity has been implemented in any type of SNN, but given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology.
+Progress is however being made towards the goal of making machines more like minds; indeed, the bus in a computers' hardware may operate at tens of MHz, while an axon may carry only tens to hundreds of action potentials per second, about five orders of magnitude slower than a machine (Furber 2007). 
+The power efficiency of the brain is still far ahead of even the best neuromimetic hardware but the gap is closing quickly, considering that biological evolution had several hundred million years of a head start. 
+One very important property of the brain that computers have a hard time with, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity.
+It would be erroneous to say that no degree of plasticity has been implemented in any type of SNN, but given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology.
 
-\subsection{Overview of Spike-time learning methods}
-[TODO: Matt]
-Before discussing different types of artificial spiking neural networks, it is necessary to describe various spike-time learning methods that are relevant to understanding how the different types of spiking neural networks function.
-Spike time dependent plasticity (STDP) - 
-Spike driven synaptic plasticity (SDSP) - 
-Dynamic synaptic adjustments - 
+\subsection{Overview of Spike-time coding and learning methods}
+Before discussing different types of artificial spiking neural networks, it is necessary to describe various spike-time coding and learning methods that are relevant to understanding how the different types of spiking neural networks function.
+Firstly, the distinction between rate- and rank-order coding must be addressed. 
+Rate order coding is, as it sounds, a way to describe neural responses to stimulus in terms of firing rate, paying attention to the timing between spikes of a single input. 
+Rank order, on the other hand, focuses on the relative timing of spikes from all inputs. 
+As has been argued in depth elsewhere [cite], rate order has a number of drawbacks, though the primary one is its inability to transmit and process information in a short period of time; with \(n\) neurons being able to transmit over the course of 10 ms only $log_2(n C 1)$ bits of information. 
+Rank order, under the same constraints, is capable of achieving $log_2(n!)$ bits of information. 
+As detailed in [cite: Thorpe 1998], rate order can be considered an $analog-to-frequency$ converter, while rank order would be an $analog-to-delay$ converter, as the time an integrate-and-fire neuron takes to reach threshold is dependent upon input strength. 
+In short, Rank Order (RO) coding is assumed to be a better model as it can process more information in a shorter amount of time with fewer redundant neurons. 
+Moving on to learning methods, spike time dependent plasticity (STDP) implements plasticity through the use of long-term potentiation (LTP) and depression (LTD). 
+In other words, the connection weight between two neurons increases if the pre-synaptic neuron spikes before the post-synaptic neuron, and the weight decreases in the reverse case. 
+Spike driven synaptic plasticity (SDSP) is a semi-supervised variant of STDP in which a threshold $Vmth$ is given to the post-synaptic neurons' membrane potential. 
+If the membrane potential is above $Vmth$ when an input spike arrives, potentiation occurs. 
+Otherwise, the synapse experiences depression. 
+[edit: use formulas from Kasabov?] 
+These two cases are typically either shortly before or shortly after a post-synaptic spike is emitted, respectively. 
+We will later describe a new learning method referred to as entropic synaptogenetic plasticity (ESP), governed by biologically inspired formulas taken from (Levy).
 
 \subsection{Types of Spiking Neural Networks}
 [TODO: Matt]
-There's SNN (default, outdated)
+There's SNN (default, outdated) - static
 eSNN (evolves -alters synaptic weights- between a learning and recall phase)
 deSNN (evolves dynamically - there's no differentiation between learning and recall (learns continuously))
 

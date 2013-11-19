@@ -46,7 +46,6 @@
 % correct bad hyphenation here
 \hyphenation{net-works SpiNNaker depending}
 
-
 \begin{document}
 %
 % paper title
@@ -99,23 +98,24 @@ The brain is a spiking neural network.
 That is to say; biological neurons pass information around the brain via action potentials which travel from a neurons' soma (cell body) down the axon and generate synaptic events which are received by the dendrites of all other connected neurons.
 Figure 1 diagrams the relevant biological prerequisites.
 
-\begin{figure}
-\centering
-\includegraphics[scale=0.6]{img/neuron}
-\caption{Visual representation of a biological neuron identifying the cell body, dendrites, and axon.}
-\end{figure}
+%\begin{figure}
+%\centering
+%\includegraphics[scale=0.6]{img/neuron}
+%\caption{Visual representation of a biological neuron identifying the cell body, dendrites, and axon.}
+%\end{figure}
 
 
 The process has been simplified greatly as neurobiology is not the focus of this paper, nor is the biological process yet completely understood. 
 What's important are the overarching properties exhibited by brains. 
 Namely; that brains are fast, power-efficient, and capable of obtaining, representing, and integrating complex multi-dimensional information sets into useful knowledge (and from noisy sensory inputs, at that). 
 Moreover, the property of being able to fairly reliably solve highly complex problems is something we want computers to have. 
-[Include TSP example stating that human could do in a day what a procedural program would take hundreds of thousands of man-years to do?]
+[Include TSP example illustrating that a human could do in a day what a procedural program would take hundreds of thousands of man-years to do?]
 Progress is however being made towards the goal of making machines more like minds; indeed, the bus in a computers' hardware may operate at tens of MHz, while an axon may carry only tens to hundreds of action potentials per second, about five orders of magnitude slower than a machine (Furber 2007). 
 The power efficiency of the brain is still far ahead of even the best neuromimetic hardware but the gap is closing quickly, considering that biological evolution had several hundred million years of a head start. 
 
-One very important property of the brain that has received little attention by Computer Scientists, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity.
-It would be erroneous to say that no degree of plasticity has been implemented in any type of SNN, but given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology.
+One very important property of the brain that has received little attention by Computer Scientists, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity involving the dynamic creation or removal of synapses.
+It would be erroneous to say that no degree of plasticity has been implemented in any type of SNN, but to the best of our knowledge there is yet no model which allows networks to add or remove synapses at runtime. 
+Given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology.
 
 \subsection{Overview of Spike-time coding and learning methods}
 Before discussing different types of artificial spiking neural networks, it is necessary to describe various spike-time coding and learning methods that are relevant to understanding how the different types of spiking neural networks function.
@@ -124,44 +124,60 @@ Firstly, the distinction between rate- and rank-order coding must be addressed.
 Rate order coding is, as it sounds, a way to describe neural responses to stimulus in terms of firing rate, paying attention to the timing between spikes of a single input. 
 Rank order, on the other hand, focuses on the relative timing of spikes from all inputs. 
 As has been argued in depth elsewhere [cite], rate order has a number of drawbacks, though the primary one is its inability to transmit and process information in a short period of time; with \(n\) neurons being able to transmit over the course of 10 ms only $log_2(n C 1)$ bits of information.
-Rank order, under the same constraints, is capable of achieving $log_2(n!)$ bits of information. 
+Rank order, under the same constraints, is capable of achieving $log_2(n!)$ bits of information. [cite: Kasabov 2013]
+
 As detailed in [cite: Thorpe 1998], rate order can be considered an $analog-to-frequency$ converter, while rank order would be an $analog-to-delay$ converter, as the time an integrate-and-fire neuron takes to reach threshold is dependent upon input strength. 
-In short, Rank Order (RO) coding is assumed to be a better model as it can process more information in a shorter amount of time with fewer redundant neurons. 
+During an initial learning phase, in which a new output neuron $i$ is created for each $N$-dimensional training input pattern, connection weights $w_j,i (j = 1,2,...,N)$ are calculated based on the rank order learning rule:
+
+\begin{equation}
+w_j,i(t) = {\alpha}\cdot{mod^{order(j,i)}} 
+\end{equation} 
+where $w_j,i$ is the connection weight between post-synaptic neuron $i$ and pre-synaptic neuron $j$, $\alpha$ is a learning parameter, $mod$ is a modulation factor (determining the importance of the order of the first spikes), with $order(j,i)$ representing the order of spikes arriving at neuron $i$ from all synapses to the neuron $i$ (has value $0$ for the first spike to neuron $i$, increases incrementally for each subsequent spike from other pre-synaptic neurons). [cite: Kasabov 2013]
+Some models using rank order coding will also merge output neurons with similar weight vectors based on the Euclidean distance between them, thus reducing the number of redundant neurons that must be simulated.
+In short, rank order (RO) coding is assumed to be a better basis for model construction as it allows networks to process more information in a shorter amount of time with fewer redundant neurons. 
 
 Moving on to learning methods, spike time dependent plasticity (STDP) implements plasticity through the use of long-term potentiation (LTP) and depression (LTD). 
 In other words, the connection weight between two neurons increases if the pre-synaptic neuron spikes before the post-synaptic neuron, and the weight decreases in the reverse case. 
 Spike driven synaptic plasticity (SDSP) is a semi-supervised variant of STDP in which a threshold $Vmth$ is given to the post-synaptic neurons' membrane potential. 
 If the membrane potential is above $Vmth$ when an input spike arrives, potentiation occurs. 
-Otherwise, the synapse experiences depression. 
+Otherwise, the synapse experiences depression.
 [edit: use formulas from Kasabov?] 
 These two cases are typically either shortly before or shortly after a post-synaptic spike is emitted, respectively. 
-We will later describe a new learning method referred to as entropic synaptogenetic plasticity (ESP), governed by biologically inspired formulas taken from (Levy), and influence of Information Theory from Shannon.
+
+We will later describe a new learning method referred to as entropic synaptogenetic plasticity (ESP), governed by biologically inspired formulas taken from (Levy), and influenced by Information Theory from Shannon.
 
 \subsection{Types of Spiking Neural Networks}
-[TODO: Matt]
 
 \begin{itemize}
-\item[(a)] {\bf SNN} (default, outdated) - static
-\item[(b)] {\bf eSNN} (evolves -alters synaptic weights- between a learning and recall phase)
-\item[(c)] {\bf deSNN} (evolves dynamically - there's no differentiation between learning and recall (learns continuously))
+\item[(a)] {\bf A spiking neural network (SNN)} is the most basic form, in which synaptic weights are static and neurons communicate via message spikes.
+While they have some drawbacks, an SNN is still a fairly powerful biologically-inspired model.
+\item[(b)] {\bf An evolving spiking neural network (eSNN)} evolves its functionality and structure based on incoming information using the RO rule -- formula (1), but only during a learning phase.
+Once a neurons' weight has been set, however, this model does not allow for any further tuning of synaptic weights to reflect on other incoming spikes at the same synapse. 
+That is to say; these synapses can capture some long-term memory during the learning phase, but have little ability to capture any short term memory, which is detrimental to the computational capabilities of the network as a whole. 
+\item[(c)] {\bf A dynamically evolving spiking neural network (deSNN)} represents an improvement over eSNN in that it implements not only RO learning during an initial learning phase, but also a dynamic synaptic plasticity mechanism so that it will continue to learn and improve performance during a recall phase; the deSNN proposed in [cite: Kasabov 2013] uses the SDSP mechanism.
+This fixes the primary shortcoming of the eSNN model; allowing for short term memory to be stored easily, and to be potentiated as long as it remains useful. 
 \end{itemize}
 
 \subsection{SpiNNaker}
-[TODO: Matt]
+The Spiking Neural Network Architecture (SpiNNaker) board is a neuromimetic hardware system designed by the University of Manchester with the eventual intent of simulating the human brain. 
+It is the brainchild of Steve Furber, and has a number of properties that make it useful for neural computation:
 \begin{itemize}
 \item fast
 \item power efficient
 \item massively parallelized
-\item capable of running complex SNN simulations
+\item globally asynchronous
+\item locally synchronous 
+\item capable of running complex SNN simulations [superfluous?]
 \item scalable
-\item new
 \end{itemize}
+[cite: all of the above]
+[TODO: explain why these properties make it suitable for this experiment -- also the overlap of these properties with those of the brain]
 
 \subsection{Synaptic Plasticity}
 A difficult problem in designing neural networks is configuring the initial parameters to optimize the network.
-For example, defining how the neurons are connected together greatly affects the effeciency and performance in learning [cite]. 
-Perceptrons are often designed as bipartite graphs, where every neuron in the presynaptic layer is connected to every neuron in the postsynaptic layer.
-This brute-force approach to constructing a network topology may achieve satisfactory results if the weights converge to the optimal values within an acceptible time.
+For example, defining how the neurons are connected together greatly affects the efficiency and performance in learning [cite]. 
+Perceptrons are often designed as bipartite graphs, where every neuron in the pre-synaptic layer is connected to every neuron in the post-synaptic layer.
+This brute-force approach to constructing a network topology may achieve satisfactory results if the weights converge to the optimal values within an acceptable time.
 However, a bipartite graph scales exponentially to the number of nodes in each layer. 
 In our solution, we let the neural network modify itself, providing a ``hands-off'' approach to designing a network.
 
@@ -171,15 +187,15 @@ The three types of plasticity undergo the following principles (Levy 2004):
 
 \begin{itemize}
 \item[(a)] {\bf Synaptogenesis} - 
-Unlike most networks, we allow our's to form new connections between neurons while learning occurs. 
-The creation of a new synapse depends on whether the postsynaptic neuron is at an optimal activation. 
+Unlike most networks, we allow ours to form new connections between neurons while learning occurs. 
+The creation of a new synapse depends on whether the post-synaptic neuron is at an optimal activation. 
 If not, the network considers forming a new synapse.
 Additionally, synaptogenesis only occurs between neighboring neurons, ensuring a constraint on locality.
 Synapses are formed by taking into account both receptivity and avidity (Levy 2004).
 
 \vspace{0.3cm}
 
-Avidity is the measure of ablility for each neuron to participate in a new synaptic connection, defined as
+Avidity is the measure of ability for each neuron to participate in a new synaptic connection, defined as
 
 \[
 A_i(t)=\frac{a}{(a + \sum_j\sum_kW_{i_kj}(t))}
@@ -195,7 +211,7 @@ a = \left\{
 \right.
 \]
 
-The receptivity of new synaptic connections is inversly proportional to the running average of the neuron's activation.
+The receptivity of new synaptic connections is inversely proportional to the running average of the neuron's activation.
 We use the following equation for receptivity,
 
 \[
@@ -217,8 +233,8 @@ Finally, the probability of forming a new synapse between two neurons \(i\) and 
 \]
 
 \item[(b)] {\bf Weight Modification} - 
-Similar to most unsupervised weight modification rules, we use a deterministic process depending on the pre- and postsynaptic activities.
-This type of weight adjustement is based off the Hebbian rule, where links between nodes that fire together strengthens.
+Similar to most unsupervised weight modification rules, we use a deterministic process depending on the pre- and post-synaptic activities.
+This type of weight adjustment is based off the Hebbian rule, where links between nodes that fire together strengthens.
 Specifically, weights are adjusted using the following formula,
 
 \[
@@ -226,7 +242,7 @@ Specifically, weights are adjusted using the following formula,
 \]
 
 \item[(c)] {\bf Synapse Removal} -
-Lastly, we allow our network to undergo synaptic removal, a stoachastic process where the probability of removal becomes non-zero if excitatory synapses fall bellow a specified threshold.
+Lastly, we allow our network to undergo synaptic removal, a stochastic process where the probability of removal becomes non-zero if excitatory synapses fall bellow a specified threshold.
 Given some constant \(\delta > 0\), probability of synaptic removal is defined as
 
 \[
@@ -246,7 +262,7 @@ Levy asserts that  ``information theory has gained popularity in recent years as
 
 \hfill
 
-[TODO: Matt] We're combining the two and extending the deSNN model into an edeSNN model, which will shortly be enslaving the entire human race.
+[TODO: Matt] We're combining the two and extending the deSNN model into an edeSNN model, which will shortly achieve sentience and enslave the entire human race.
 
 
 \section{Design}

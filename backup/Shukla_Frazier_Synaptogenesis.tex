@@ -50,7 +50,7 @@
 %
 % paper title
 % can use linebreaks \\ within to get better formatting as desired
-\title{Creating, Removing, and Modifying\\Synaptic Connections On The Spiking Neural Network Architecture (SpiNNaker) In Real-Time
+\title{Effects Of Real-time Synaptic Plasticity Using Spiking Neural Network Architecture
 }
 
 
@@ -80,8 +80,18 @@ Additionally, we explored scalability issues and unintended pitfalls with this a
 Neural Networks, Synaptogenesis, SpiNNaker
 \end{IEEEkeywords}
 
-
+%% TODO: Nishant
 \section{Introduction}
+% the problem
+%   - back propogation, not energy effecient (we slowed ours down by 1000)
+% why it's interesting
+% it's an unsolved problem
+% here's our idea
+% it works
+% and here's how it compares to others
+
+
+\section{Background}
 \IEEEPARstart{T}{he} subfield of AI known as neural network computation has recently received a large and growing amount of attention. 
 Put simply; neural networks (NN) are computational models inspired by biological brains that are capable of machine learning. 
 A NN usually consists of interconnected "neurons" (in quotation marks for they are artificially simulated to varying degrees of biological accuracy -- but that topic is outside the scope of this paper) which compute from their inputs and produce various outputs, depending on the model. 
@@ -136,6 +146,7 @@ where $w_j,i$ is the connection weight between post-synaptic neuron $i$ and pre-
 Some models using rank order coding will also merge output neurons with similar weight vectors based on the Euclidean distance between them, thus reducing the number of redundant neurons that must be simulated.
 In short, rank order (RO) coding is assumed to be a better basis for model construction as it allows networks to process more information in a shorter amount of time with fewer redundant neurons. 
 
+% TODO: Matt, emphasize importance of STDP because it's used in our implementation so it'll make us legit
 Moving on to learning methods, spike time dependent plasticity (STDP) implements plasticity through the use of long-term potentiation (LTP) and depression (LTD). 
 In other words, the connection weight between two neurons increases if the pre-synaptic neuron spikes before the post-synaptic neuron, and the weight decreases in the reverse case. 
 Spike driven synaptic plasticity (SDSP) is a semi-supervised variant of STDP in which a threshold $Vmth$ is given to the post-synaptic neurons' membrane potential. 
@@ -158,6 +169,9 @@ That is to say; these synapses can capture some long-term memory during the lear
 This fixes the primary shortcoming of the eSNN model; allowing for short term memory to be stored easily, and to be potentiated as long as it remains useful. 
 \end{itemize}
 
+%% TODO: Matt, support for claims in the list below by citing SpiNNaker papers
+% And, explain why these properties make it suitable for this experiment 
+% also reveal the overlap of these properties with those of the brain
 \subsection{SpiNNaker}
 The Spiking Neural Network Architecture (SpiNNaker) board is a neuromimetic hardware system designed by the University of Manchester with the eventual intent of simulating the human brain. 
 It is the brainchild of Steve Furber, and has a number of properties that make it useful for neural computation:
@@ -170,8 +184,6 @@ It is the brainchild of Steve Furber, and has a number of properties that make i
 \item capable of running complex SNN simulations [superfluous?]
 \item scalable
 \end{itemize}
-[cite: all of the above]
-[TODO: explain why these properties make it suitable for this experiment -- also the overlap of these properties with those of the brain]
 
 \subsection{Synaptic Plasticity}
 A difficult problem in designing neural networks is configuring the initial parameters to optimize the network.
@@ -260,14 +272,12 @@ Synaptic connections are slowly modified through additions or removals until opt
 
 Levy asserts that  ``information theory has gained popularity in recent years as a tool for understanding brain recordings.''
 
-\hfill
-
-[TODO: Matt] We're combining the two and extending the deSNN model into an edeSNN model, which will shortly achieve sentience and enslave the entire human race.
-
 
 \section{Design}
 \IEEEPARstart{N}{eural} networks consist of biologically inspired relationships between individual nodes (neurons). Learning in such a network occurs by intelligently adjusting weights on the links between the nodes. We define the relationship between nodes into the following three categories:
 
+% TODO: Nishant, relate to current implementation
+% locally connected vs. other connection schemes
 \begin{itemize}
 \item[(a)] {\bf Static} - where the network topology is fixed, and can only change by manually adjusting the relationship between nodes. Most neural networks fall into this category because regardless of the number of nodes \(n\), only one fixed relationship forms between them:
 
@@ -301,6 +311,16 @@ We designed a programming framework on SpiNNaker's interface to enable a semi-dy
 Each neuron has the flexibility to rewire with none, all, or some of the fixed number of other neurons, following our synaptic plasticity rules.
 To test performance, the network analyzed the MNIST database of handwritten digits. We compared information loss (see appendix A) and statistical dependency (see appendix B) from a network following our synaptic plasticity model, to that without synaptogensis and synapse removal.
 
+% TODO: Nishant, Talk about Izhikevich model, and spnet here
+% Talk about how time-delay are super useful.
+% They come in handy because of polygroups / polychronization
+% 5 neurons can have 14 polygroups, and 6 can have twice as much. 
+% Ergo, human brain has a bunch.
+% Which may be a cause of intelligence? Our implementation will mimic this.
+
+
+% TODO: Nishant, Talk about how SpiNNaker float stuff is implemented
+% and parallel architecture design, STDP implementation
 \section{Implementation}
 \IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate efficient semi-dynamic synaptogenesis. We implemented a perceptron with fifteen nodes consisting of nine input layers and six output layers. As diagrammed in Figure 1 below, each of the nine neurons broadcasted its excitation to an arbitrarily chosen six output neurons. 
 
@@ -324,15 +344,19 @@ Synaptic connectivity is broken when weights fall below some negative threshold.
 
 New connections are established between nodes when an average rate of activity drops below 25\%. In this case, the next data packet received from a muted neuron becomes unmuted, in hopes to raise the average rate of activity.
 
+
+
+% TODO: Nishant
+\section{Conclusion}
+\IEEEPARstart{T}he conclusion goes here.
+
+% TODO: Matt
 \section{Pitfalls}
 \IEEEPARstart{S}{ome} disadvantages are present when considering our approach for synaptogenesis on the SpiNNaker. [TODO: Matt] Blah blah.
 
-
+% TODO: Nishant
 \section{Further Study}
 \IEEEPARstart{T}{his} paper reveals multiple questions that still need to be examined further.
-
-\section{Conclusion}
-The conclusion goes here.
 
 
 % if have a single appendix:

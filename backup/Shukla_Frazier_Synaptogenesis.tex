@@ -97,7 +97,7 @@ Studying biologically inspired structures as opposed to statistically based ones
 By designing a neural network experiment on a new kind of computer architecture, 
 this paper aims to demonstrate the high performing nature of neural networks.
 
-Recently, deep feedforward neural networks have arisen in popularity [Cite]. 
+Recently, deep feedforward neural networks have risen in popularity [Cite]. 
 Multiple deep-learning approaches have proven to be practical.
 However, a major issue with deep-learning is the computation time for large networks.
 Deep-learning does not scale well due to the innate use of back-propagation in the algorithm.
@@ -139,8 +139,7 @@ The process has been simplified greatly as neurobiology is not the focus of this
 What's important are the overarching properties exhibited by brains. 
 Namely; that brains are fast, power-efficient, and capable of obtaining, representing, and integrating complex multi-dimensional information sets into useful knowledge (and from noisy sensory inputs, at that). 
 Moreover, the property of being able to fairly reliably solve highly complex problems is something we want computers to have. 
-[Include TSP example illustrating that a human could do in a day what a procedural program would take hundreds of thousands of man-years to do?]
-Progress is however being made towards the goal of making machines more like minds; indeed, the bus in a computers' hardware may operate at tens of MHz, while an axon may carry only tens to hundreds of action potentials per second, about five orders of magnitude slower than a machine (Furber 2007). 
+Progress is however being made towards the goal of making machines more like minds; indeed, the bus in a computers' hardware may operate at tens of MHz, while an axon may carry only tens to hundreds of action potentials per second, about five orders of magnitude slower than a machine \cite{NSE:Furber}. 
 The power efficiency of the brain is still far ahead of even the best neuromimetic hardware but the gap is closing quickly, considering that biological evolution had several hundred million years of a head start. 
 
 One very important property of the brain that has received little attention by Computer Scientists, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity involving the dynamic creation or removal of synapses.
@@ -159,7 +158,7 @@ Rank order, on the other hand, focuses on the relative timing of spikes from all
 Rate order has a number of drawbacks, though the primary one is its inability to transmit 
 and process information in a short period of time; with \(n\) neurons being able 
 to transmit over the course of 10 ms only $log_2(n C 1)$ bits of information \cite{RO:Thorpe}.
-Rank order, under the same constraints, is capable of achieving $log_2(n!)$ bits of information. \cite{deSNN:Kasabov}
+Rank order, under the same constraints, is capable of achieving $log_2(n!)$ bits of information \cite{deSNN:Kasabov}.
 
 As detailed in \cite{RO:Thorpe}, rate order can be considered an $analog-to-frequency$ converter, while rank order would be an $analog-to-delay$ converter, as the time an integrate-and-fire neuron takes to reach threshold is dependent upon input strength. 
 During an initial learning phase, in which a new output neuron $i$ is created for each $N$-dimensional training input pattern, connection weights $w_j,i (j = 1,2,...,N)$ are calculated based on the rank order learning rule:
@@ -167,27 +166,26 @@ During an initial learning phase, in which a new output neuron $i$ is created fo
 \begin{equation}
 w_j,i(t) = {\alpha}\cdot{mod^{order(j,i)}} 
 \end{equation} 
-where $w_j,i$ is the connection weight between post-synaptic neuron $i$ and pre-synaptic neuron $j$, $\alpha$ is a learning parameter, $mod$ is a modulation factor (determining the importance of the order of the first spikes), with $order(j,i)$ representing the order of spikes arriving at neuron $i$ from all synapses to the neuron $i$ (has value $0$ for the first spike to neuron $i$, increases incrementally for each subsequent spike from other pre-synaptic neurons). \cite{deSNN:Kasabov}
+where $w_j,i$ is the connection weight between post-synaptic neuron $i$ and pre-synaptic neuron $j$, $\alpha$ is a learning parameter, $mod$ is a modulation factor (determining the importance of the order of the first spikes), with $order(j,i)$ representing the order of spikes arriving at neuron $i$ from all synapses to the neuron $i$ (has value $0$ for the first spike to neuron $i$, increases incrementally for each subsequent spike from other pre-synaptic neurons) \cite{deSNN:Kasabov}.
 Some models using rank order coding will also merge output neurons with similar weight vectors based on the Euclidean distance between them, thus reducing the number of redundant neurons that must be simulated.
-In short, rank order (RO) coding is assumed to be a better basis for model construction as it allows networks to process more information in a shorter amount of time with fewer redundant neurons. 
+In short, rank order (RO) coding is assumed to be a better basis for model construction as it allows networks to process more information in a shorter amount of time with fewer redundant neurons \cite{RO:Thorpe}.
 One of the only downsides to rank order over rate order is an increased overhead.
 
-% TODO: Matt, emphasize importance of STDP because it's used in our implementation so it'll make us legit
 Moving on to learning methods, spike time dependent plasticity (STDP) implements plasticity 
-through the use of long-term potentiation (LTP) and depression (LTD). 
-In other words, the connection weight between two neurons increases 
+through the use of long-term potentiation (LTP) and depression (LTD) \cite{FBBPSTDP:Davies, FBSTDP:Davies, STDPonset:Humble}.
+Put simply, the connection weight between two neurons increases 
 if the pre-synaptic neuron spikes before the post-synaptic neuron, 
 and the weight decreases in the reverse case.  
 Spike driven synaptic plasticity (SDSP) is a semi-supervised variant of STDP 
-in which a threshold $Vmth$ is given to the post-synaptic neurons' membrane potential. 
+in which a threshold $Vmth$ is given to the post-synaptic neurons' membrane potential \cite{deSNN:Kasabov}.
 If the membrane potential is above $Vmth$ when an input spike arrives, potentiation occurs. 
 Otherwise, the synapse experiences depression.
 These two cases are typically either shortly before or shortly after a post-synaptic 
 spike is emitted, respectively. 
 
-STDP is the most commonly discussed paradigm for learning in neural networks. Its benefits include its unsupervised nature, and, significantly, the ability for the LTP and LTD weight modifications to be calculated by the post-synaptic neuron upon receipt of a spike. This allows the updates to be performed at a single point in the simulation: at the spike arrival event, which can further increase the efficiency of a simulation. \cite{FBBPSTDP:Davies,FBSTDP:Davies}
+STDP is the most commonly discussed paradigm for learning in neural networks. Its benefits include its unsupervised nature, and, significantly, the ability for the LTP and LTD weight modifications to be calculated by the post-synaptic neuron upon receipt of a spike. This allows the updates to be performed at a single point in the simulation: at the spike arrival event, which can further increase the efficiency of a simulation \cite{FBBPSTDP:Davies,FBSTDP:Davies}.
 
-We will later describe a new learning method referred to as synaptogenetic spike time dependent plasticity (SSTDP), utilizing STDP and governed by biologically inspired formulas taken from (Levy), and influenced by Information Theory from Shannon.
+We will later describe a new learning method referred to as synaptogenetic spike time dependent plasticity (SSTDP), utilizing STDP and governed by biologically inspired synaptogenetic formulas taken from \cite{SynGen:Levy}, and influenced by Information Theory from Shannon.
 
 \subsection{Types of Spiking Neural Networks}
 \begin{itemize}
@@ -196,12 +194,12 @@ in which synaptic weights are static and neurons communicate via message spikes.
 While they have some drawbacks, an SNN is still a fairly powerful biologically-inspired model.
 \item[(b)] {\bf An evolving spiking neural network (eSNN)} evolves its functionality and 
 structure based on incoming information using the RO rule, 
-but only during a learning phase.
+but only during a learning phase \cite{deSNN:Kasabov}.
 Once a neurons' weight has been set, however, this model does not allow 
 for any further tuning of synaptic weights to reflect on other incoming spikes at the same synapse. 
 That is to say; these synapses can capture some long-term memory during the learning phase, 
 but have little ability to capture any short term memory, which is detrimental to the computational 
-capabilities of the network as a whole. \cite{deSNN:Kasabov}
+capabilities of the network as a whole \cite{deSNN:Kasabov}.
 \item[(c)] {\bf A dynamically evolving spiking neural network (deSNN)} represents an improvement 
 over eSNN in that it implements not only RO learning during an initial learning phase, 
 but also a dynamic synaptic plasticity mechanism so that it will continue to learn and 
@@ -218,7 +216,7 @@ system designed by the University of Manchester with the eventual intent of simu
 the human brain. Each SpiNNaker processing node is a multicore system-on-chip (SoC) 
 with 1GB SDRAM, containing 18 ARM968 processor cores, connected in a toroidal triangular 
 mesh with passed messages being managed by an on-chip router for an asynchronous 
-packet-switched network-on-chip (NoC). \cite{GALS:Plana} 
+packet-switched network-on-chip (NoC) \cite{GALS:Plana}.
 It is the brainchild of Steve Furber, and has a number of properties that make it 
 useful for neural computation:
 \begin{description}
@@ -237,10 +235,10 @@ known as neurons \cite{BioMPA:Furber}. It follows that a digital system meant to
 efficiently emulate neural activity would also be massively parallelized, though each ARM core is 
 substantially more complex than a single neuron, and can efficiently model many neurons in 
 real time \cite{ArchOverV:Furber}. Each NoC is extended seamlessly to surrounding chips, 
-creating a power-efficient system-wide interprocessor communication network. \cite{GALS:Plana} 
+creating a power-efficient system-wide interprocessor communication network \cite{GALS:Plana}.
 \item[Globally asynchronous, locally synchronous (GALS)] \hfill \\ 
 In a GALS system, individual processing cores have their own clock signals, potentially 
-with different frequencies, and requiring no interprocessor phase-alignment \cite{GALS:Plana}. 
+with different frequencies, and require no interprocessor phase-alignment \cite{GALS:Plana}. 
 Each SpiNNaker chip is its own GALS system, with an independently-clocked router managing 
 intercore and interchip communications, leading to the SpiNNaker system as a whole also 
 being a GALS system \cite{BioMPA:Furber}. 
@@ -250,7 +248,7 @@ and any timing closure issues \cite{GALS:Plana}.
 It also offers increased flexibility regarding process variability \cite{BioMPA:Furber}.
 \item[Fault Tolerant] \hfill \\ 
 In any large-scale systems fault tolerance is a major concern, and is increases in importance 
-with the number of fallible subsystems. 
+with the number of fallible subsystems \cite{ArchOverV:Furber}.
 Fault tolerance was paid a great deal of attention by the SpiNNaker development team, 
 and listing all the built-in mechanisms at various levels of abstraction is outside the scope 
 of this paper. 
@@ -269,7 +267,7 @@ To summarize, the SpiNNaker specifically disregards three significant axioms of 
 
 \subsection{Synaptic Plasticity}
 A difficult problem in designing neural networks is configuring the initial parameters to optimize the network.
-For example, defining how the neurons are connected together greatly affects the efficiency and performance in learning. \cite{SynGen:Levy}
+For example, defining how the neurons are connected together greatly affects the efficiency and performance in learning \cite{SynGen:Levy}.
 Perceptrons are often designed as bipartite graphs, where every neuron in the pre-synaptic layer is connected to every neuron in the post-synaptic layer.
 This brute-force approach to constructing a network topology may achieve satisfactory results if the weights converge to the optimal values within an acceptable time.
 However, a bipartite graph scales exponentially to the number of nodes in each layer. 
@@ -277,7 +275,7 @@ In our solution, we let the neural network modify itself, providing a ``hands-of
 
 Other than updating synaptic weights to achieve learning, we introduce two additional forms of synaptic plasticity. 
 In our study, we allow new synapses to be formed (synaptogenesis), or existing synapses to be entirely disconnected. 
-The three types of plasticity undergo the following principles (Levy 2004):
+The three types of plasticity undergo the following principles \cite{SynGen:Levy}(Cite: Levy 2004):
 
 \begin{itemize}
 \item[(a)] {\bf Synaptogenesis} - 
@@ -285,7 +283,7 @@ Unlike most networks, we allow ours to form new connections between neurons whil
 The creation of a new synapse depends on whether the post-synaptic neuron is at an optimal activation. 
 If not, the network considers forming a new synapse.
 Additionally, synaptogenesis only occurs between neighboring neurons, ensuring a constraint on locality.
-Synapses are formed by taking into account both receptivity and avidity (Levy 2004).
+Synapses are formed by taking into account both receptivity and avidity \cite{SynGen:Levy}(Cite: Levy 2004).
 
 \vspace{0.3cm}
 
@@ -358,8 +356,6 @@ Levy asserts that  ``information theory has gained popularity in recent years as
 \section{Design}
 \IEEEPARstart{N}{eural} networks consist of biologically inspired relationships between individual nodes (neurons). Learning in such a network occurs by intelligently adjusting weights on the links between the nodes. We define the relationship between nodes into the following three categories:
 
-% TODO: Nishant, relate to current implementation
-% locally connected vs. other connection schemes
 \begin{itemize}
 \item[(a)] {\bf Static} - where the network topology is fixed, and can only change by manually adjusting the relationship between nodes. Most neural networks fall into this category because regardless of the number of nodes \(n\), only one fixed relationship forms between them:
 
@@ -416,7 +412,7 @@ This model allows for ``forgetting'' isolated input currents.
 However, it also is insufficient for modeling cortical spiking neurons.
 \item[(c)] {\bf Izhikevich} 
  model is an adaptation of the Integrate-and-fire model that uses a quadratic non-linearity when adjusting the voltage.
-This model is known for its applicability to large-scale simulations of cortical neural networks [CITE].
+This model is known for its applicability to large-scale simulations of cortical neural networks \cite{Spikes:Izhi}.
 % http://www.izhikevich.org/publications/whichmod.htm]
 \end{itemize}
 
@@ -427,7 +423,7 @@ we wish to see both a more energy and time effecient approach for emulating neur
 In direct comparison to Izhikevich's paper on polychronization, 
 we present a spiking neural network on the SpiNNaker 
 that can also exhibit reproducible time-locked but not synchronous firing patterns.
-This time-lock pattern is referred to as polychronization [Cite].
+This time-lock pattern is referred to as polychronization \cite{Polychron:Izhi}.
 These polygroups are possible due to introducing delays in the network.
 The SpiNNaker machine produces natural delays as packets are sent to and from chips.
 We take advantages of the delays to discover these polygroups.
@@ -441,14 +437,29 @@ We take advantages of the delays to discover these polygroups.
 
 \subsection{Input Spikes}
 The SpiNNaker neural network was given a set of letters as input. 
-Each letter was represented by a 48-dimensional binary vector of $1s$ or $0s$.
-Intuitively, a $1$ represents a black pixel, and a $0$ represents a white pixel in a visual $8$ x $6$ image representation of the letter.
+Each letter was represented by a 48-dimensional binary vector of $1s$ or $0s$. Figures 1 and 2 are examples of letters with fairly similar input vectors, for illustration.
 
-Each coordinate of the 48-dimensional input spikes its cooresponding input neuron. 
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/U.png}
+\caption{The letter U.}
+\includegraphics[scale=0.6]{imgs/V.png}
+\caption{The letter V.}
+\end{figure}
+
+Intuitively, a $1$ represents a colored pixel, and a $0$ represents a blank pixel in a visual $8$ x $6$ image representation of the letter. 
+Each coordinate of the 48-dimensional input spikes its cooresponding input neuron. Figure 3 is an example of a letter with its input vector.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/A.png}
+\caption{000000001100010010010010011110010010010010010010}
+\end{figure}
+
 The letters are randomly generated by a Python script which sends a spike to the SpiNNaker machine one by one.
 
 \subsection{Floating Point Arithmetic}
-The SpiNNaker machine does not support floating point arithmetic. 
+The SpiNNaker machine has no hardware support for floating point arithmetic \cite{ArchOverV:Furber}. 
 However, the Izhikevich neural model adjusts voltage variables based off the following equations.
 
 \begin{math}
@@ -484,7 +495,7 @@ The rounding errors of implementing the Izhikevich model are minute as demonstra
 
 
 \subsection{Parallel Design}
-The algorithm written on the multi-core parallel SpiNNaker system is a translation of sequential MATLAB code.
+The algorithm written on the multi-core parallel SpiNNaker system is a translation of sequential MATLAB code used in \cite{Polychron:Izhi}.
 Instead of dealing with lists of neurons, we were able to simple use a variable per each neuron core.
 Likewise, instead of using a two-dimensional array, where one dimension was the index of a neuron, 
 we were able to simply use a one-dimensional array per each neuron core.
@@ -504,8 +515,6 @@ Each packet received by an output node is looked up in the output node's local l
 Synaptic connectivity is broken when weights fall below some negative threshold. More specifically, when an average running weight dropped below \(-\delta\) for some \(\delta > 0\), the link is considered disconnected.
 
 New connections are established between nodes when an average rate of activity drops below 25\%. In this case, the next data packet received from a muted neuron becomes unmuted, in hopes to raise the average rate of activity.
-
-
 
 % TODO: Nishant
 \section{Conclusion}

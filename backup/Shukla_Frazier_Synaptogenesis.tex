@@ -519,6 +519,22 @@ Synaptic connectivity is broken when weights fall below some negative threshold.
 
 New connections are established between nodes when an average rate of activity drops below 25\%. In this case, the next data packet received from a muted neuron becomes unmuted, in hopes to raise the average rate of activity.
 
+\section{Results}
+\IEEEPARstart{A}fter training the network on 1000 letters pixel-by-pixel, we were able to
+observe the oscillatory property described by Izhikevich \cite{Polychron:Izhi}.
+The output neurons initially fire at a frequency of $0.476 Hz$, which increases gradually.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{imgs/spikes}
+\caption{The spike times of output neurons are shown in the diagram above. 
+Each neuron is represented by a different shade of color.
+The curves represent the timings when each neuron fires.\label{fig:spikes}}
+\end{figure}
+
+
+
+
 % TODO: Nishant
 \section{Conclusion}
 \IEEEPARstart{T}hrough emperical evidence, we have shown that by taking advantage of a spiking neural network architecture such as the SpiNNaker, 

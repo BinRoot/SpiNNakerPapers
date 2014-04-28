@@ -59,7 +59,7 @@
         Worthy Martin* }
 
 % The paper headers
-\markboth{Journal of Neuroscience Methods,~Vol.~x, No.~y, January~2014}%
+\markboth{Journal of Neuroscience Methods,~Vol.~x, No.~y, May~2014}%
 {Shell \MakeLowercase{\textit{et al.}}: Synaptogenesis on the SpiNNaker}
 % The only time the second header will appear is for the odd numbered pages
 % after the title page when using the twoside option.
@@ -70,8 +70,12 @@
 
 \begin{abstract}
 Artificial Neural Networks is a promising approach to study human brain computation in hopes of achieving similar learning by artificial agents.
-Recent architecture design of a low-power supercomputer by the University of Manchester (SpiNNaker) has made it easier to design highly parallel brain-inspired algorithms.
-We used the SpiNNaker chip to implement a neural network capable of rewiring its connection in real-time while trying to minimize information loss and maximize the decrease in statistical dependence.
+Recent architecture design of a low-power supercomputer by the University of Manchester, the SpiNNaker,
+has made it easier to design highly parallel brain-inspired algorithms.
+We used the SpiNNaker machine to implement a neural network capable of rewiring its connection 
+in real-time while trying to minimize information loss and maximize the decrease in statistical dependence.
+We believe this is the first use of synaptogenesis on a spiking neural network architecture, 
+laying the framework for future effecient brain-like neural networks.
 Additionally, we explored scalability issues and unintended pitfalls with this approach.
 
 \end{abstract}
@@ -82,13 +86,29 @@ Neural Networks, Synaptogenesis, SpiNNaker
 
 %% TODO: Nishant
 \section{Introduction}
-% the problem
-%   - back propogation, not energy effecient (we slowed ours down by 1000)
-% why it's interesting
-% it's an unsolved problem
-% here's our idea
-% it works
-% and here's how it compares to others
+\IEEEPARstart{A}{rtificial} neural networks often require vast amounts of computation memory and space \cite{CorrMatr:Levy}.
+Some of the most effective algorithms such as back propogation do not scale well for a network consisting of a billion or more neurons [Cite].
+Furthermore, most neural network models do not fully utilize the machine on which they run. 
+The ones that do fully utilize their machine are typically implemented on Graphical Processing Units (GPUs) which disproportionately drain energy.
+
+Finding a solution to revive neural networks to the same computational caliber 
+as other paradigms such as Support Vector Machines (SVM) would better adhere to biologically based design.
+Studying biologically inspired structures as opposed to statistically based ones allows us to grasp a better understanding of the human brain.
+By designing a neural network experiment on a new kind of computer architecture, 
+this paper aims to demonstrate the high performing nature of neural networks.
+
+Recently, deep feedforward neural networks have arisen in popularity [Cite]. 
+Multiple deep-learning approaches have proven to be practical.
+However, a major issue with deep-learning is the computation time for large networks.
+Deep-learning does not scale well due to the innate use of back-propagation in the algorithm.
+
+Our approach to neural network learning is through an unsupervised model on a spiking neural network architecture.
+By utilizing every core of the 72-core energy-efficient embedded system, 
+we are capible of reproducing complex neural network patterns in less than half the energy-cost. 
+The network creates and removes synapses in real-time, so not only are weights learned and adjusted simultaneously, 
+but so are the actual connections between the neurons.
+We demonstrate that introducing synaptic modification on a neural network leads to a biologically accurate model
+that outperforms previous previous methods in both performance and energy costs.
 
 
 \section{Background}
@@ -128,66 +148,128 @@ It would be erroneous to say that no degree of plasticity has been implemented i
 Given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology.
 
 \subsection{Overview of Spike-time coding and learning methods}
-Before discussing different types of artificial spiking neural networks, it is necessary to describe various spike-time coding and learning methods that are relevant to understanding how the different types of spiking neural networks function.
+Before discussing different types of artificial spiking neural networks, 
+it is necessary to describe various spike-time coding and learning methods 
+that are relevant to understanding how the different types of spiking neural networks function.
 
 Firstly, the distinction between rate- and rank-order coding must be addressed. 
-Rate order coding is, as it sounds, a way to describe neural responses to stimulus in terms of firing rate, paying attention to the timing between spikes of a single input. 
+Rate order coding is, as it sounds, a way to describe neural responses to stimulus 
+in terms of firing rate, paying attention to the timing between spikes of a single input. 
 Rank order, on the other hand, focuses on the relative timing of spikes from all inputs. 
-As has been argued in depth elsewhere [cite], rate order has a number of drawbacks, though the primary one is its inability to transmit and process information in a short period of time; with \(n\) neurons being able to transmit over the course of 10 ms only $log_2(n C 1)$ bits of information.
-Rank order, under the same constraints, is capable of achieving $log_2(n!)$ bits of information. [cite: Kasabov 2013]
+Rate order has a number of drawbacks, though the primary one is its inability to transmit 
+and process information in a short period of time; with \(n\) neurons being able 
+to transmit over the course of 10 ms only $log_2(n C 1)$ bits of information \cite{RO:Thorpe}.
+Rank order, under the same constraints, is capable of achieving $log_2(n!)$ bits of information. \cite{deSNN:Kasabov}
 
-As detailed in [cite: Thorpe 1998], rate order can be considered an $analog-to-frequency$ converter, while rank order would be an $analog-to-delay$ converter, as the time an integrate-and-fire neuron takes to reach threshold is dependent upon input strength. 
+As detailed in \cite{RO:Thorpe}, rate order can be considered an $analog-to-frequency$ converter, while rank order would be an $analog-to-delay$ converter, as the time an integrate-and-fire neuron takes to reach threshold is dependent upon input strength. 
 During an initial learning phase, in which a new output neuron $i$ is created for each $N$-dimensional training input pattern, connection weights $w_j,i (j = 1,2,...,N)$ are calculated based on the rank order learning rule:
 
 \begin{equation}
 w_j,i(t) = {\alpha}\cdot{mod^{order(j,i)}} 
 \end{equation} 
-where $w_j,i$ is the connection weight between post-synaptic neuron $i$ and pre-synaptic neuron $j$, $\alpha$ is a learning parameter, $mod$ is a modulation factor (determining the importance of the order of the first spikes), with $order(j,i)$ representing the order of spikes arriving at neuron $i$ from all synapses to the neuron $i$ (has value $0$ for the first spike to neuron $i$, increases incrementally for each subsequent spike from other pre-synaptic neurons). [cite: Kasabov 2013]
+where $w_j,i$ is the connection weight between post-synaptic neuron $i$ and pre-synaptic neuron $j$, $\alpha$ is a learning parameter, $mod$ is a modulation factor (determining the importance of the order of the first spikes), with $order(j,i)$ representing the order of spikes arriving at neuron $i$ from all synapses to the neuron $i$ (has value $0$ for the first spike to neuron $i$, increases incrementally for each subsequent spike from other pre-synaptic neurons). \cite{deSNN:Kasabov}
 Some models using rank order coding will also merge output neurons with similar weight vectors based on the Euclidean distance between them, thus reducing the number of redundant neurons that must be simulated.
 In short, rank order (RO) coding is assumed to be a better basis for model construction as it allows networks to process more information in a shorter amount of time with fewer redundant neurons. 
+One of the only downsides to rank order over rate order is an increased overhead.
 
 % TODO: Matt, emphasize importance of STDP because it's used in our implementation so it'll make us legit
-Moving on to learning methods, spike time dependent plasticity (STDP) implements plasticity through the use of long-term potentiation (LTP) and depression (LTD). 
-In other words, the connection weight between two neurons increases if the pre-synaptic neuron spikes before the post-synaptic neuron, and the weight decreases in the reverse case. 
-Spike driven synaptic plasticity (SDSP) is a semi-supervised variant of STDP in which a threshold $Vmth$ is given to the post-synaptic neurons' membrane potential. 
+Moving on to learning methods, spike time dependent plasticity (STDP) implements plasticity 
+through the use of long-term potentiation (LTP) and depression (LTD). 
+In other words, the connection weight between two neurons increases 
+if the pre-synaptic neuron spikes before the post-synaptic neuron, 
+and the weight decreases in the reverse case.  
+Spike driven synaptic plasticity (SDSP) is a semi-supervised variant of STDP 
+in which a threshold $Vmth$ is given to the post-synaptic neurons' membrane potential. 
 If the membrane potential is above $Vmth$ when an input spike arrives, potentiation occurs. 
 Otherwise, the synapse experiences depression.
-[edit: use formulas from Kasabov?] 
-These two cases are typically either shortly before or shortly after a post-synaptic spike is emitted, respectively. 
+These two cases are typically either shortly before or shortly after a post-synaptic 
+spike is emitted, respectively. 
 
-We will later describe a new learning method referred to as entropic synaptogenetic plasticity (ESP), governed by biologically inspired formulas taken from (Levy), and influenced by Information Theory from Shannon.
+STDP is the most commonly discussed paradigm for learning in neural networks. Its benefits include its unsupervised nature, and, significantly, the ability for the LTP and LTD weight modifications to be calculated by the post-synaptic neuron upon receipt of a spike. This allows the updates to be performed at a single point in the simulation: at the spike arrival event, which can further increase the efficiency of a simulation. \cite{FBBPSTDP:Davies,FBSTDP:Davies}
+
+We will later describe a new learning method referred to as synaptogenetic spike time dependent plasticity (SSTDP), utilizing STDP and governed by biologically inspired formulas taken from (Levy), and influenced by Information Theory from Shannon.
 
 \subsection{Types of Spiking Neural Networks}
-
 \begin{itemize}
-\item[(a)] {\bf A spiking neural network (SNN)} is the most basic form, in which synaptic weights are static and neurons communicate via message spikes.
+\item[(a)] {\bf A spiking neural network (SNN)} is the most basic form, 
+in which synaptic weights are static and neurons communicate via message spikes.
 While they have some drawbacks, an SNN is still a fairly powerful biologically-inspired model.
-\item[(b)] {\bf An evolving spiking neural network (eSNN)} evolves its functionality and structure based on incoming information using the RO rule -- formula (1), but only during a learning phase.
-Once a neurons' weight has been set, however, this model does not allow for any further tuning of synaptic weights to reflect on other incoming spikes at the same synapse. 
-That is to say; these synapses can capture some long-term memory during the learning phase, but have little ability to capture any short term memory, which is detrimental to the computational capabilities of the network as a whole. 
-\item[(c)] {\bf A dynamically evolving spiking neural network (deSNN)} represents an improvement over eSNN in that it implements not only RO learning during an initial learning phase, but also a dynamic synaptic plasticity mechanism so that it will continue to learn and improve performance during a recall phase; the deSNN proposed in [cite: Kasabov 2013] uses the SDSP mechanism.
-This fixes the primary shortcoming of the eSNN model; allowing for short term memory to be stored easily, and to be potentiated as long as it remains useful. 
+\item[(b)] {\bf An evolving spiking neural network (eSNN)} evolves its functionality and 
+structure based on incoming information using the RO rule, 
+but only during a learning phase.
+Once a neurons' weight has been set, however, this model does not allow 
+for any further tuning of synaptic weights to reflect on other incoming spikes at the same synapse. 
+That is to say; these synapses can capture some long-term memory during the learning phase, 
+but have little ability to capture any short term memory, which is detrimental to the computational 
+capabilities of the network as a whole. \cite{deSNN:Kasabov}
+\item[(c)] {\bf A dynamically evolving spiking neural network (deSNN)} represents an improvement 
+over eSNN in that it implements not only RO learning during an initial learning phase, 
+but also a dynamic synaptic plasticity mechanism so that it will continue to learn and 
+improve performance during a recall phase; the deSNN proposed in \cite{deSNN:Kasabov} 
+uses the SDSP mechanism. 
+This fixes the primary shortcoming of the eSNN model; 
+allowing for short term memory to be stored easily, 
+and to be potentiated as long as it remains useful\cite{deSNN:Kasabov}. 
 \end{itemize}
 
-%% TODO: Matt, support for claims in the list below by citing SpiNNaker papers
-% And, explain why these properties make it suitable for this experiment 
-% also reveal the overlap of these properties with those of the brain
 \subsection{SpiNNaker}
-The Spiking Neural Network Architecture (SpiNNaker) board is a neuromimetic hardware system designed by the University of Manchester with the eventual intent of simulating the human brain. 
-It is the brainchild of Steve Furber, and has a number of properties that make it useful for neural computation:
-\begin{itemize}
-\item fast
-\item power efficient
-\item massively parallelized
-\item globally asynchronous
-\item locally synchronous 
-\item capable of running complex SNN simulations [superfluous?]
-\item scalable
-\end{itemize}
+The Spiking Neural Network Architecture (SpiNNaker) board is a neuromimetic hardware 
+system designed by the University of Manchester with the eventual intent of simulating 
+the human brain. Each SpiNNaker processing node is a multicore system-on-chip (SoC) 
+with 1GB SDRAM, containing 18 ARM968 processor cores, connected in a toroidal triangular 
+mesh with passed messages being managed by an on-chip router for an asynchronous 
+packet-switched network-on-chip (NoC). \cite{GALS:Plana} 
+It is the brainchild of Steve Furber, and has a number of properties that make it 
+useful for neural computation:
+\begin{description}
+\item[Fast]	\hfill \\ 
+The SpiNNaker system has a bisection bandwidth of over 5 billion 
+packets/s \cite{ArchOverV:Furber}. It is, by design, meant to model spiking neural networks 
+in real time. However, it can be said to outperform biology in terms of raw speed of neural activity, 
+and must be slowed down to run real-time simulations \cite{ArchOverV:Furber, Fast:Rast}.
+\item[Power efficient] \hfill \\ 
+A simulation run on the SpiNNaker system has been documented taking 100 nJ per neuron per 
+millisecond and 43 nJ per postsynaptic potential, a smaller power consumption than any other 
+recorded digital simulation \cite{Efficient:Sharp}.
+\item[Massively parallelized] \hfill \\ 
+The brain is a massively parallel system populated with many low-performance asynchronous components 
+known as neurons \cite{BioMPA:Furber}. It follows that a digital system meant to effectively and 
+efficiently emulate neural activity would also be massively parallelized, though each ARM core is 
+substantially more complex than a single neuron, and can efficiently model many neurons in 
+real time \cite{ArchOverV:Furber}. Each NoC is extended seamlessly to surrounding chips, 
+creating a power-efficient system-wide interprocessor communication network. \cite{GALS:Plana} 
+\item[Globally asynchronous, locally synchronous (GALS)] \hfill \\ 
+In a GALS system, individual processing cores have their own clock signals, potentially 
+with different frequencies, and requiring no interprocessor phase-alignment \cite{GALS:Plana}. 
+Each SpiNNaker chip is its own GALS system, with an independently-clocked router managing 
+intercore and interchip communications, leading to the SpiNNaker system as a whole also 
+being a GALS system \cite{BioMPA:Furber}. 
+Major benefits of a GALS approach include that it eliminates any top-level 
+system constraints (i.e. it is decentralized), 
+and any timing closure issues \cite{GALS:Plana}. 
+It also offers increased flexibility regarding process variability \cite{BioMPA:Furber}.
+\item[Fault Tolerant] \hfill \\ 
+In any large-scale systems fault tolerance is a major concern, and is increases in importance 
+with the number of fallible subsystems. 
+Fault tolerance was paid a great deal of attention by the SpiNNaker development team, 
+and listing all the built-in mechanisms at various levels of abstraction is outside the scope 
+of this paper. 
+To summarize, fault tolerance mechanisms exist at nearly every level of the system, 
+including those related to processors, 
+the interrupt controller, timers, and packet communications, 
+allowing subsystems to generally fail gracefully without greatly affecting 
+the performance of the system as a whole \cite{ArchOverV:Furber}.
+\item[Scalable] \hfill \\ 
+Due to the nature inherent to its GALS design, it is arbitrarily scalable. 
+The only cost associated with scaling up the system is power consumption. 
+The full million-core machine has an expected power budget of around 90 kW \cite{ArchOverV:Furber}.
+\end{description}
+
+To summarize, the SpiNNaker specifically disregards three significant axioms of conventional supercomputing (memory coherence, synchronization, determinism) in a way that makes it well-suited for a wide range of biological and non-biological applications \cite{ArchOverV:Furber}.
 
 \subsection{Synaptic Plasticity}
 A difficult problem in designing neural networks is configuring the initial parameters to optimize the network.
-For example, defining how the neurons are connected together greatly affects the efficiency and performance in learning [cite]. 
+For example, defining how the neurons are connected together greatly affects the efficiency and performance in learning. \cite{SynGen:Levy}
 Perceptrons are often designed as bipartite graphs, where every neuron in the pre-synaptic layer is connected to every neuron in the post-synaptic layer.
 This brute-force approach to constructing a network topology may achieve satisfactory results if the weights converge to the optimal values within an acceptable time.
 However, a bipartite graph scales exponentially to the number of nodes in each layer. 
@@ -303,7 +385,7 @@ Levy asserts that  ``information theory has gained popularity in recent years as
 \end{itemize}
 
 A biological neural network such as the human brain does not follow the static network topology. 
-Connections between neurons in the brain are regularly formed and removed over time [cite]. 
+Connections between neurons in the brain are regularly formed and removed over time \cite{SynGen:Levy, StatDepRed:Levy}. 
 Moreover, such a neural network is not fully dynamic either, since locality is a physical constraint. 
 For example, a neuron on the far end of the left hemisphere of a brain might never directly connect with a neuron on the right hemisphere.
 
@@ -345,23 +427,69 @@ we wish to see both a more energy and time effecient approach for emulating neur
 In direct comparison to Izhikevich's paper on polychronization, 
 we present a spiking neural network on the SpiNNaker 
 that can also exhibit reproducible time-locked but not synchronous firing patterns.
-
+This time-lock pattern is referred to as polychronization [Cite].
+These polygroups are possible due to introducing delays in the network.
+The SpiNNaker machine produces natural delays as packets are sent to and from chips.
+We take advantages of the delays to discover these polygroups.
 
 
 % TODO: Nishant, Talk about how SpiNNaker float stuff is implemented
 % and parallel architecture design, STDP implementation
 % and spnet here
 \section{Implementation}
-\IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate efficient real-time synaptogenesis. 
+\IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate efficient real-time synaptogenesis. The neural network consisted of 39 excitatory input neurons, 9 inhibitory neurons, and 16 output neurons. 
+
+\subsection{Input Spikes}
+The SpiNNaker neural network was given a set of letters as input. 
+Each letter was represented by a 48-dimensional binary vector of $1s$ or $0s$.
+Intuitively, a $1$ represents a black pixel, and a $0$ represents a white pixel in a visual $8$ x $6$ image representation of the letter.
+
+Each coordinate of the 48-dimensional input spikes its cooresponding input neuron. 
+The letters are randomly generated by a Python script which sends a spike to the SpiNNaker machine one by one.
+
+\subsection{Floating Point Arithmetic}
+The SpiNNaker machine does not support floating point arithmetic. 
+However, the Izhikevich neural model adjusts voltage variables based off the following equations.
+
+\begin{math}
+\triangle v = 0.04 v^2 + 5 v  + 140 - u + I
+\end{math}
+
+\begin{math}
+\triangle u = a(b v - u)
+\end{math}
+
+In order to alleviate the rounding errors from only using integer arithmic on the SpiNNaker machine, 
+we scale the equations up to remove all floating points values. 
+Then we use integer division in the final step to obtain the actual result.
+The rounding errors of implementing the Izhikevich model are minute as demonstrated in the following diagrams.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_tonic}
+\caption{Tonic spiking of a neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_spike_freq_adapt}
+\caption{Spike frequency adaptation of a neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_class_1_excitable}
+\caption{Class 1 excitable neuron.}
+\end{figure}
 
 
-We implemented a perceptron with fifteen nodes consisting of nine input layers and six output layers. As diagrammed in Figure 1 below, each of the nine neurons broadcasted its excitation to an arbitrarily chosen six output neurons. 
+\subsection{Parallel Design}
+The algorithm written on the multi-core parallel SpiNNaker system is a translation of sequential MATLAB code.
+Instead of dealing with lists of neurons, we were able to simple use a variable per each neuron core.
+Likewise, instead of using a two-dimensional array, where one dimension was the index of a neuron, 
+we were able to simply use a one-dimensional array per each neuron core.
+Arguably, the parallel implementation on the SpiNNaker was easier to design due to the code only ever acting locally on one core.
 
-The network was composed of 784 input neurons and 17 output neurons.
-
-\vspace{0.5cm}
-[Figure 1]
-\vspace{0.5cm}
 
 We used the weight modification rule proposed by Levy to categorize an input set of letters. 
 
@@ -381,15 +509,40 @@ New connections are established between nodes when an average rate of activity d
 
 % TODO: Nishant
 \section{Conclusion}
-\IEEEPARstart{T}he conclusion goes here.
+\IEEEPARstart{T}hrough emperical evidence, we have shown that by taking advantage of a spiking neural network architecture such as the SpiNNaker, 
+we can implement a high performance energy effecient neural network system. 
+Without the computation drawbacks of back-propagation, or the growing space complexity of global variables, 
+we are able to train a network on a machine that uses less than 5 Watts of energy [Cite].
+% http://neuromorphs.net/nm/raw-attachment/wiki/2013/uns13/Power_analysis_of_large_scale_real_time_neural_networks_on_SpiNNaker.pdf
+Moreover, we have futher demonstrated that a neural network can produce outstanding results by having its input be fed in series as opposed to in parallel.
 
-% TODO: Matt
+
+% Step by step nn
+
 \section{Pitfalls}
-\IEEEPARstart{S}{ome} disadvantages are present when considering our approach for synaptogenesis on the SpiNNaker. [TODO: Matt] Blah blah.
+\IEEEPARstart{S}{ome} disadvantages are present when considering our approach 
+for synaptogenesis on the SpiNNaker. 
+Programming parallel applications is a challenge in its own right, 
+but a lack of floating point support on the 
+SpiNNaker system \cite{ArchOverV:Furber} compounds the difficulty, 
+especially when the neural dynamics parameters and coefficients in the differential equations 
+of Izhikevich's simple neural model are floating point numbers \cite{Spikes:Izhi}. 
+To get around this, we rationalized all coefficients in the equations and multiplied the 
+entire set of equations by the lowest common multiple of the denominators of 
+the rationalized coefficients. 
+This incurred a slight loss of precision, but not so much that the models we 
+used exhibited different neural activity behavior than their original counterparts 
+with the same input. 
+Source code illustrating this is available upon request.
 
 % TODO: Nishant
 \section{Further Study}
-\IEEEPARstart{T}{his} paper reveals multiple questions that still need to be examined further.
+\IEEEPARstart{T}{his} paper reveals multiple questions that still need to be examined further. 
+A key feature of the SpiNNaker machine is its ability to connect to other SpiNNaker chips for scalable performance.
+Future papers can examine the performance of a network of SpiNNaker chips together.
+It's been shown that with ``quarter of a million neurons, 
+tens of millions of synapses and dynamic activity of over a billion synaptic events per second can be delivered within a 30 W power envelope.''
+
 
 
 % if have a single appendix:
@@ -415,6 +568,57 @@ Appendix A text goes here.
 % if you want by leaving the argument blank
 \section{Calculation of Statistical Dependence}
 Appendix B text goes here.
+
+\section{Floating point vs. Integer arithmetic}
+Appendix C.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_class_2_excitable}
+\caption{Class 2 excitable neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_subthreshold_osc}
+\caption{Subthreshold oscillatory neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_resonator}
+\caption{Spiking resonator neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_integrator}
+\caption{Integrator neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_rebound_burst}
+\caption{Rebound burse neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_thresh_variability}
+\caption{Threshold variability neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_bistability}
+\caption{Bistability neuron.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{imgs/izh_accomodation}
+\caption{Accomodation neuron.}
+\end{figure}
 
 
 % use section* for acknowledgement
@@ -454,11 +658,75 @@ The authors would like to thank Professor Worthy Martin, Associate Professor of 
 % <OR> manually copy in the resultant .bbl file
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
-\begin{thebibliography}{1}
 
-\bibitem{IEEEhowto:kopka}
-H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
-  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+
+\begin{thebibliography}{22}
+
+\bibitem{CorrMatr:Levy}
+D.~Adelsberger-Mangan and W.~Levy in \emph{International Joint Conference on Neural Networks 4}, 1992
+
+\bibitem{StatDepRed:Levy}
+D.~Adelsberger-Mangan and W.~Levy in \emph{Biological Cybernetics 67}, 1992, pp. 469-477
+
+\bibitem{SynGen:Levy}
+D.~Adelsberger-Mangan and W.~Levy in \emph{Biological Cybernetics 70}, 1993, pp. 81-87
+
+\bibitem{FBBPSTDP:Davies}
+S.~Davies et al. in \emph{Proceedings of International Joint Conference on Neural Networks}, San Jose, CA, 2011
+
+\bibitem{FBSTDP:Davies}
+S.~Davies et al. in \emph{Neural Networks 32} 2012, pp. 3–14
+
+\bibitem{RTS:Davies}
+S.~Davies et al. in \emph{Proceedings of the 8th ACM International Conference on Computing Frontiers}, New York, NY, 2011, Article No. 15 
+
+\bibitem{ArchOverV:Furber}
+S.~Furber et al. in \emph{IEEE Transactions on Computers, Vol. 62, No. 12}, 2013, pp. 2454-2467
+
+\bibitem{BioMPA:Furber}
+S.~Furber and A.~Brown in \emph{Ninth International Conference on Application of Concurrency to System Design}, 2009, pp. 3-12
+
+\bibitem{NSE:Furber}
+S.~Furber and S.~Temple in \emph{Journal of the Royal Society Interface 4}, 2007, pp. 193-206
+
+\bibitem{HierarchMPA:Galluppi}
+F.~Galluppi et al. in \emph{Proceedings of the 9th conference on Computing Frontiers}, New York, NY, 2012, pp. 183-192
+
+\bibitem{RankPolychron:Galluppi}
+F.~Galluppi and S.~Furber in \emph{Internation Joint Conference on Neural Networks}, San Jose, CA, 2011, pp. 943-950 
+
+\bibitem{STDPonset:Humble}
+J.~Humble et al. in \emph{From Brains to Systems}, Springer New York, 2011, pp. 19-31
+
+\bibitem{Spikes:Izhi}
+E.~Izhikevich in \emph{IEEE Transactions on Neural Networks 14}, 2003, pp. 1569-1572
+
+\bibitem{Polychron:Izhi}
+E.~Izhikevich in \emph{Neural Computation 18}, 2006, pp. 245-282
+
+\bibitem{deSNN:Kasabov}
+N.~Kasabov et al. in \emph{Neural Networks 41}, 2013, pp. 188-201
+
+\bibitem{Interconnection:Navaridas}
+J.~Navaridas et al. in \emph{Proceedings of the 23rd international conference on Supercomputing}, 2009, pp. 286-295 
+
+\bibitem{MPI:Plana}
+L.~Plana et al. in \emph{IEEE Design and Test archive, Vol. 24 No. 5}, 2007, pp. 454-463
+
+\bibitem{GALS:Plana}
+L.~Plana et al. in \emph{ACM Journal on Emerging Technologies in Computing Systems, Vol. 7, No. 4}, 2011
+
+\bibitem{Fast:Rast}
+A.~Rast et al. in \emph{Neural Networks 24}, 2011, pp. 961-978
+
+\bibitem{Efficient:Sharp}
+T.~Sharp et al. in \emph{Journal of Neuroscience Methods 210}, 2012, pp. 110-118
+
+\bibitem{ENNtAT:Stanley}
+K.~Stanley and R.~Miikkulainen in \emph{Evolutionary Computation, Vol. 10 No. 2}, 2002, pp. 99-127
+
+\bibitem{RO:Thorpe}
+S.~Thorpe and J.~Gautrais in \emph{Computational Neuroscience; trends in research}, 1998, pp. 113-118
 
 \end{thebibliography}
 

@@ -311,18 +311,51 @@ We designed a programming framework on SpiNNaker's interface to enable a semi-dy
 Each neuron has the flexibility to rewire with none, all, or some of the fixed number of other neurons, following our synaptic plasticity rules.
 To test performance, the network analyzed the MNIST database of handwritten digits. We compared information loss (see appendix A) and statistical dependency (see appendix B) from a network following our synaptic plasticity model, to that without synaptogensis and synapse removal.
 
-% TODO: Nishant, Talk about Izhikevich model, and spnet here
+% TODO: Nishant, Talk about Izhikevich model, 
 % Talk about how time-delay are super useful.
 % They come in handy because of polygroups / polychronization
 % 5 neurons can have 14 polygroups, and 6 can have twice as much. 
 % Ergo, human brain has a bunch.
 % Which may be a cause of intelligence? Our implementation will mimic this.
 
+In order to implement a spiking neural network, we choose an existing neural model.
+There exists multiple neural models for implementing a spiking neural network. 
+Some of the most popular models are briefly covered below.
+ 
+\begin{itemize}
+\item[(a)] {\bf Integrate-and-fire (IF)} 
+ is one such model which increments the voltage while a current is present,
+and finally resets the voltage once a threshold $V_{th}$ is reached. 
+Every voltage reset produces a spike for that neuron.
+While computationaly effecient, the IF model does not exhibit properties of the cortical spiking neurons.
+\item[(b)] {\bf Leaky integrate-and-fire (LIF)} 
+ models are a biologically revised version of the previous model.
+This model allows for ``forgetting'' isolated input currents.
+However, it also is insufficient for modeling cortical spiking neurons.
+\item[(c)] {\bf Izhikevich} 
+ model is an adaptation of the Integrate-and-fire model that uses a quadratic non-linearity when adjusting the voltage.
+This model is known for its applicability to large-scale simulations of cortical neural networks [CITE].
+% http://www.izhikevich.org/publications/whichmod.htm]
+\end{itemize}
+
+We use the Izhikevich model since it our best candidate for a biologically inspired neuron
+that is simple enough to implement on a new computer architecture. 
+By running an ensemble of neurons on the SpiNNaker, 
+we wish to see both a more energy and time effecient approach for emulating neural networks.
+In direct comparison to Izhikevich's paper on polychronization, 
+we present a spiking neural network on the SpiNNaker 
+that can also exhibit reproducible time-locked but not synchronous firing patterns.
+
+
 
 % TODO: Nishant, Talk about how SpiNNaker float stuff is implemented
 % and parallel architecture design, STDP implementation
+% and spnet here
 \section{Implementation}
-\IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate efficient semi-dynamic synaptogenesis. We implemented a perceptron with fifteen nodes consisting of nine input layers and six output layers. As diagrammed in Figure 1 below, each of the nine neurons broadcasted its excitation to an arbitrarily chosen six output neurons. 
+\IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate efficient real-time synaptogenesis. 
+
+
+We implemented a perceptron with fifteen nodes consisting of nine input layers and six output layers. As diagrammed in Figure 1 below, each of the nine neurons broadcasted its excitation to an arbitrarily chosen six output neurons. 
 
 The network was composed of 784 input neurons and 17 output neurons.
 

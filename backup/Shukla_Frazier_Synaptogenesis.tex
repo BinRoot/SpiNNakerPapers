@@ -112,7 +112,7 @@ we are capable of reproducing complex neural network patterns in less than half 
 The network creates and removes synapses in real-time, so not only are weights learned and adjusted simultaneously, 
 but so are the actual connections between the neurons.
 We demonstrate that introducing synaptic modification on a neural network leads to a biologically accurate model
-that outperforms previous methods in both performance and energy costs.
+that outperforms previous methods in both performance and energy costs \cite{MPI:Plana}.
 
 
 \section{Background}
@@ -123,7 +123,7 @@ A NN usually consists of interconnected "neurons" (in quotation marks for they a
 This paper focuses on types of spiking neural network (SNN) models, in which the neuronal communication (and therefore, the computation of the system as a whole) is achieved via message spikes, or action potentials, from one neuron that is synapsed onto another. 
 In this introduction, we first describe how a SNN is a good computational representation of the brain. 
 We then describe various different spike-dependent spike-time learning methods used on a SNN, followed by an exploration of various types of SNN. 
-We discuss why the neuromimetic hardware we use is a good platform for experimentation with SNN, and then describe our approach to the problem of simulating synaptogenesis on such a device and propose a solution. 
+We discuss why the neuromimetic hardware we use is a good platform for experimentation with SNN \cite{HierarchMPA:Galluppi}, and then describe our approach to the problem of simulating synaptogenesis on such a device and propose a solution. 
 Our design and implementation sections explore this solution in detail, 
 and our results section describe the outcome of our experiment.
 Furthermore, we discuss future work that remains to be conducted, including interesting implications such as computability beyond Von Neuman architecture and Turing machines.
@@ -150,7 +150,7 @@ The power efficiency of the brain is still far ahead of even the best neuromimet
 
 One very important property of the brain that has received little attention by Computer Scientists, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity involving the dynamic creation or removal of synapses.
 It would be erroneous to say that no degree of plasticity has been implemented in any type of SNN, but to the best of our knowledge there is yet no model which allows networks to add or remove synapses at runtime. 
-Given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology.
+Given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology \cite{ENNtAT:Stanley}.
 
 \subsection{Overview of Spike-time coding and learning methods}
 Before discussing different types of artificial spiking neural networks, 
@@ -160,7 +160,7 @@ that are relevant to understanding how the different types of spiking neural net
 Firstly, the distinction between rate- and rank-order coding must be addressed. 
 Rate order coding is, as it sounds, a way to describe neural responses to stimulus 
 in terms of firing rate, paying attention to the timing between spikes of a single input. 
-Rank order, on the other hand, focuses on the relative timing of spikes from all inputs. 
+Rank order, on the other hand, focuses on the relative timing of spikes from all inputs \cite{RankPolychron:Galluppi}. 
 Rate order has a number of drawbacks, though the primary one is its inability to transmit 
 and process information in a short period of time; with \(n\) neurons being able 
 to transmit over the course of 10 ms only $log_2(n C 1)$ bits of information \cite{RO:Thorpe}.
@@ -229,14 +229,14 @@ useful for neural computation:
 \item[(a)]{\bf Fast:}
 The SpiNNaker system has a bisection bandwidth of over 5 billion 
 packets/s \cite{ArchOverV:Furber}. It is, by design, meant to model spiking neural networks 
-in real time. However, it can be said to outperform biology in terms of raw speed of neural activity, 
+in real time. However, it can be said to outperform biology in terms of raw speed of neural activity \cite{RTS:Davies}, 
 and must be slowed down to run real-time simulations \cite{ArchOverV:Furber, Fast:Rast}.
 \item[(b)]{\bf Power efficient:} A simulation run on the SpiNNaker system has been documented taking 100 nJ per neuron per 
 millisecond and 43 nJ per postsynaptic potential, a smaller power consumption than any other 
 recorded digital simulation \cite{Efficient:Sharp}.
 \item[(c)] {\bf Massively parallelized:} The brain is a massively parallel system populated with many low-performance asynchronous components 
 known as neurons \cite{BioMPA:Furber}. It follows that a digital system meant to effectively and 
-efficiently emulate neural activity would also be massively parallelized, though each ARM core is 
+efficiently emulate neural activity would also be massively parallelized \cite{Interconnection:Navaridas}, though each ARM core is 
 substantially more complex than a single neuron, and can efficiently model many neurons in 
 real time \cite{ArchOverV:Furber}. Each NoC is extended seamlessly to surrounding chips, 
 creating a power-efficient system-wide interprocessor communication network \cite{GALS:Plana}.

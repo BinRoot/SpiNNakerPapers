@@ -191,7 +191,6 @@ spike is emitted, respectively.
 
 STDP is the most commonly discussed paradigm for learning in neural networks. Its benefits include its unsupervised nature, and, significantly, the ability for the LTP and LTD weight modifications to be calculated by the post-synaptic neuron upon receipt of a spike. This allows the updates to be performed at a single point in the simulation: at the spike arrival event, which can further increase the efficiency of a simulation \cite{FBBPSTDP:Davies,FBSTDP:Davies}.
 
-%TODO: Nishant, mention/discuss this somewhere later (wherever we discuss our 'solution')
 We will later describe a new learning method referred to as synaptogenetic spike time dependent plasticity (SSTDP), utilizing STDP and governed by biologically inspired synaptogenetic formulas taken from \cite{SynGen:Levy}, and influenced by Information Theory from Shannon.
 
 \subsection{Types of Spiking Neural Networks}
@@ -521,7 +520,7 @@ Synaptic connectivity is broken when weights fall below some negative threshold.
 
 New connections are established between nodes when an average rate of activity drops below 25\%. In this case, the next data packet received from a muted neuron becomes unmuted, in hopes to raise the average rate of activity.
 
-%TODO:Nishant, SSTDP here?
+We combined the typical STDP mechanisms \cite{FBSTDP:Davies} with synaptogenetic formulas from \cite{SynGen:Levy, SynGen2:Levy} to created a new synaptic plasticity mechanism, which we refer to as synaptogenetic spike time dependent plasticity (SSTDP). This mechanism, implemented locally on each postsynaptic neuron, handles both synaptic weight and network-level topological modifications.
 
 \section{Outcomes}
 \IEEEPARstart{A}fter training the network on 1000 letters pixel-by-pixel, we were able to

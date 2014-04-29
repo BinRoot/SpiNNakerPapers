@@ -107,7 +107,7 @@ However, a major issue with deep-learning is the computation time for large netw
 Deep-learning does not scale well due to the innate use of back-propagation in the algorithm.
 
 Our approach to neural network learning is through an unsupervised model on a spiking neural network architecture.
-By utilizing every core of the 72-core energy-efficient embedded system, 
+By utilizing almost every core of the 72-core energy-efficient embedded system, 
 we are capable of reproducing complex neural network patterns in less than half the energy-cost. 
 The network creates and removes synapses in real-time, so not only are weights learned and adjusted simultaneously, 
 but so are the actual connections between the neurons.
@@ -141,14 +141,14 @@ Source: \cite{img:N} \label{fig:neuron}}
 \end{figure}
 
 
-The process has been simplified greatly as neurobiology is not the focus of this paper, nor is the biological process yet completely understood. 
-What's important are the overarching properties exhibited by brains. 
-Namely; that brains are fast, power-efficient, and capable of obtaining, representing, and integrating complex multi-dimensional information sets into useful knowledge (and from noisy sensory inputs, at that). 
+The process has been simplified greatly as neurobiology is not the focus of this paper, nor are the biological processes yet completely understood. 
+What is important are the overarching properties exhibited by brains. 
+Namely; that brains are fast, power-efficient, and capable of obtaining, representing, and integrating complex multi-dimensional information sets into useful knowledge (from unreliable sensory inputs, at that). 
 Moreover, the property of being able to fairly reliably solve highly complex problems is something we want computers to have. 
 Progress is however being made towards the goal of making machines more like minds; indeed, the bus in a computers' hardware may operate at tens of MHz, while an axon may carry only tens to hundreds of action potentials per second, about five orders of magnitude slower than a machine \cite{NSE:Furber}. 
 The power efficiency of the brain is still far ahead of even the best neuromimetic hardware but the gap is closing quickly, considering that biological evolution had several hundred million years of a head start. 
 
-One very important property of the brain that has received little attention by Computer Scientists, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity involving the dynamic creation or removal of synapses.
+One very important property of the brain that has received little attention by computer scientists, which is also believed to be quintessential in mankind's ability to adapt to and solve new and ever-more difficult problems, is neural plasticity involving the dynamic creation or removal of synapses.
 It would be erroneous to say that no degree of plasticity has been implemented in any type of SNN, but to the best of our knowledge there is yet no model which allows networks to add or remove synapses at runtime. 
 Given that we do not yet fully understand the mechanisms governing neural plasticity in our own heads, it suffices to say that there is yet much work to be done in this field of computational neuroscience in which artificial neural networks dynamically alter their own topology.
 
@@ -175,7 +175,7 @@ w_j,i(t) = {\alpha}\cdot{mod^{order(j,i)}}
 where $w_j,i$ is the connection weight between post-synaptic neuron $i$ and pre-synaptic neuron $j$, $\alpha$ is a learning parameter, $mod$ is a modulation factor (determining the importance of the order of the first spikes), with $order(j,i)$ representing the order of spikes arriving at neuron $i$ from all synapses to the neuron $i$ (has value $0$ for the first spike to neuron $i$, increases incrementally for each subsequent spike from other pre-synaptic neurons) \cite{deSNN:Kasabov}.
 Some models using rank order coding will also merge output neurons with similar weight vectors based on the Euclidean distance between them, thus reducing the number of redundant neurons that must be simulated.
 In short, rank order (RO) coding is assumed to be a better basis for model construction as it allows networks to process more information in a shorter amount of time with fewer redundant neurons \cite{RO:Thorpe}.
-One of the only downsides to rank order over rate order is an increased overhead.
+One of the only downsides to rank order over rate order is a slightly increased computational overhead.
 
 Moving on to learning methods, spike time dependent plasticity (STDP) implements plasticity 
 through the use of long-term potentiation (LTP) and depression (LTD) \cite{FBBPSTDP:Davies, FBSTDP:Davies, STDPonset:Humble}.
@@ -191,6 +191,7 @@ spike is emitted, respectively.
 
 STDP is the most commonly discussed paradigm for learning in neural networks. Its benefits include its unsupervised nature, and, significantly, the ability for the LTP and LTD weight modifications to be calculated by the post-synaptic neuron upon receipt of a spike. This allows the updates to be performed at a single point in the simulation: at the spike arrival event, which can further increase the efficiency of a simulation \cite{FBBPSTDP:Davies,FBSTDP:Davies}.
 
+%TODO: Nishant, mention/discuss this somewhere later (wherever we discuss our 'solution')
 We will later describe a new learning method referred to as synaptogenetic spike time dependent plasticity (SSTDP), utilizing STDP and governed by biologically inspired synaptogenetic formulas taken from \cite{SynGen:Levy}, and influenced by Information Theory from Shannon.
 
 \subsection{Types of Spiking Neural Networks}
@@ -435,7 +436,7 @@ With our implementation, we aim to uncover the polygroups from the machine's inn
 % and parallel architecture design, STDP implementation
 % and spnet here
 \section{Implementation}
-\IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate efficient real-time synaptogenesis. The neural network consisted of 39 excitatory input neurons, 9 inhibitory neurons, and 16 output neurons. 
+\IEEEPARstart{B}{y} taking advantage of the multiple independent cores on the SpiNNaker, we were able to emulate efficient real-time synaptogenesis. The neural network consisted of 39 excitatory input neurons, 9 inhibitory input neurons, and 16 excitatory output neurons. 
 
 \subsection{Input Spikes}
 The SpiNNaker neural network was given a set of letters as input. 
@@ -482,7 +483,7 @@ However, the Izhikevich neural model adjusts voltage variables based off the fol
 In order to alleviate the rounding errors from only using integer arithmetic on the SpiNNaker machine, 
 we scale the equations up to remove all floating points values. 
 Then we use integer division in the final step to obtain the actual result.
-The rounding errors of implementing the Izhikevich model are minute as demonstrated in the following diagrams.
+The rounding errors of implementing the Izhikevich model are typically minute if apparent at all, shown in the figures~\ref{fig:tonic} through~\ref{fig:excit1} and~\ref{fig:excit2} through~\ref{fig:accomod8}. This is discussed in greater detail in appendix B.
 
 \begin{figure}
 \centering
@@ -520,6 +521,8 @@ Synaptic connectivity is broken when weights fall below some negative threshold.
 
 New connections are established between nodes when an average rate of activity drops below 25\%. In this case, the next data packet received from a muted neuron becomes unmuted, in hopes to raise the average rate of activity.
 
+%TODO:Nishant, SSTDP here?
+
 \section{Outcomes}
 \IEEEPARstart{A}fter training the network on 1000 letters pixel-by-pixel, we were able to
 observe the oscillatory property described by Izhikevich \cite{Polychron:Izhi}.
@@ -556,7 +559,7 @@ we can implement a high performance energy efficient neural network system.
 Without the computation drawbacks of back-propagation, or the growing space complexity of global variables, 
 we are able to train a network on a machine that uses less than 5 Watts of energy \cite{ArchOverV:Furber}.
 % http://neuromorphs.net/nm/raw-attachment/wiki/2013/uns13/Power_analysis_of_large_scale_real_time_neural_networks_on_SpiNNaker.pdf
-Moreover, we have further demonstrated that a neural network can produce outstanding results by having its input be fed in series as opposed to in parallel.
+Furthermore, we have demonstrated that a neural network can produce outstanding results by having its input be fed in series as opposed to in parallel.
 
 
 % Step by step nn
@@ -577,7 +580,7 @@ used exhibited different neural activity behavior than their original counterpar
 with the same input. 
 Source code illustrating this is available upon request.
 
-Furthermore, due to inherent limitations to Ethernet speed, our simulation had to be slowed by a factor of 1000 to allow for reliable I/O communications with the host machine. There are plans in motion to accommodate for faster communication between SpiNNaker boards and host machines, so this will no longer be an issue once higher speed I/O is achieved.
+Also, due to inherent limitations to Ethernet speed, our simulation had to be slowed by a factor of 1000 to allow for reliable I/O communications with the host machine. There are plans in motion to accommodate for faster communication between SpiNNaker boards and host machines, so this will no longer be an issue once higher speed I/O is achieved.
 
 % TODO: Nishant
 \section{Further Study}
@@ -647,7 +650,7 @@ I(X;Y) = H(X) - H(X|Y)
 \vspace{0.2cm}
 
 \section{Floating point vs. Integer arithmetic}
-Figures~\ref{fig:excit2} through~\ref{fig:accomod8} illustrate the comparison between using the floating point arithmetic found in Izhikevich's original neural models \cite{Spikes:Izhi} and the integer arithmetic we formulated for our experiment. In most cases the behavior of each is indistinguishable from one another. However, note the visually apparent rounding errors figures~\ref{fig:excit2} and~\ref{fig:reson8r}. Since our experiment used exclusively the tonic spiking integer arithmetic (with slight modifications to distinguish between excitatory and inhibitory neurons) from figure~\ref{fig:tonic}, the rounding errors were not a problem.
+Figures~\ref{fig:tonic} through~\ref{fig:excit1} and~\ref{fig:excit2} through~\ref{fig:accomod8} illustrate the comparison between using the floating point arithmetic found in Izhikevich's original neural models \cite{Spikes:Izhi} and the integer arithmetic we formulated for our experiment. In most cases the behavior of each is indistinguishable from one another. However, note the visually apparent rounding errors figures~\ref{fig:excit2} and~\ref{fig:reson8r}. Since our experiment used exclusively the tonic spiking integer arithmetic (with slight modifications to distinguish between excitatory and inhibitory neurons) from figure~\ref{fig:tonic}, the rounding errors were not a problem.
 
 \begin{figure}
 \centering
